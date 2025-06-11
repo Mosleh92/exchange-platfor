@@ -1,0 +1,25 @@
+{
+  "name": "exchange-platform",
+  "version": "1.0.0",
+  "description": "پلتفرم صرافی - Multi-Tenant SaaS Platform",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'No build step required for static site'",
+    "dev": "cd frontend && python -m http.server 8080",
+    "deploy": "netlify deploy --prod --dir=frontend/public",
+    "preview": "netlify deploy --dir=frontend/public"
+  },
+  "keywords": [
+    "exchange",
+    "currency",
+    "saas",
+    "multi-tenant",
+    "persian",
+    "rtl"
+  ],
+  "author": "Exchange Platform Team",
+  "license": "MIT",
+  "devDependencies": {
+    "netlify-cli": "^15.0.0"
+  }
+}

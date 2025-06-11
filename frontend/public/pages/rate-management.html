@@ -1,0 +1,605 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="exchangeRate">💱 Manual Rate Management - Exchanger Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-chart-line text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold" data-i18n="exchangeRate">Manual Rate Management</h1>
+                        <p class="text-yellow-200 text-sm">Real-time Currency Rate Control</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="bg-yellow-700 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-clock text-xs mr-1"></i><span id="lastUpdate">Updated 2 min ago</span>
+                    </div>
+                    <a href="dashboard.html" class="bg-yellow-700 px-4 py-2 rounded hover:bg-yellow-800">
+                        <i class="fas fa-arrow-left"></i> <span data-i18n="dashboard">Dashboard</span>
+                    </a>
+                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                        <i class="fas fa-sign-out-alt"></i> <span data-i18n="logout">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Market Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-green-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Market Rates</p>
+                        <h3 class="text-2xl font-bold text-gray-800">Live</h3>
+                        <p class="text-green-600 text-sm">↗ Updated real-time</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-globe text-green-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Your Custom Rates</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="customRatesCount">24</h3>
+                        <p class="text-blue-600 text-sm">Active rate overrides</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-edit text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-purple-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Profit Margin</p>
+                        <h3 class="text-2xl font-bold text-gray-800">2.5%</h3>
+                        <p class="text-purple-600 text-sm">Average across all pairs</p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <i class="fas fa-percentage text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-orange-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Iranian Toman</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="irtRate">11,245</h3>
+                        <p class="text-orange-600 text-sm">Per AED (Your rate)</p>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-full">
+                        <i class="fas fa-coins text-orange-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Rate Update Panel -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold mb-6">⚡ Quick Rate Update</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Iranian Toman (Priority) -->
+                <div class="border-2 border-orange-200 bg-orange-50 rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-orange-800">🇮🇷 Iranian Toman</h3>
+                        <span class="bg-orange-200 text-orange-800 px-2 py-1 rounded text-xs font-semibold">HIGH PRIORITY</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">AED → IRT</label>
+                                <div class="relative">
+                                    <input type="number" id="aed_irt_rate" value="11245.5000" step="0.0001" 
+                                           class="w-full p-3 border rounded-lg font-mono text-lg bg-white">
+                                    <button onclick="quickUpdate('AED', 'IRT')" class="absolute right-2 top-2 text-orange-600 hover:text-orange-800">
+                                        <i class="fas fa-save"></i>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-gray-600 mt-1">Market: 11,240.2000</div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">USD → IRT</label>
+                                <div class="relative">
+                                    <input type="number" id="usd_irt_rate" value="41285.0000" step="0.0001" 
+                                           class="w-full p-3 border rounded-lg font-mono text-lg bg-white">
+                                    <button onclick="quickUpdate('USD', 'IRT')" class="absolute right-2 top-2 text-orange-600 hover:text-orange-800">
+                                        <i class="fas fa-save"></i>
+                                    </button>
+                                </div>
+                                <div class="text-xs text-gray-600 mt-1">Market: 41,275.5000</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button onclick="updateFromMarket('IRT')" class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm">
+                                <i class="fas fa-download mr-1"></i>Use Market
+                            </button>
+                            <button onclick="applyMargin('IRT', 2.5)" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 text-sm">
+                                <i class="fas fa-plus mr-1"></i>+2.5% Margin
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gulf Currencies -->
+                <div class="border-2 border-blue-200 bg-blue-50 rounded-lg p-6">
+                    <h3 class="text-lg font-bold text-blue-800 mb-4">🌊 Gulf Currencies</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-white rounded border">
+                            <div class="flex items-center space-x-3">
+                                <span class="font-semibold">🇸🇦 SAR → AED</span>
+                                <input type="number" id="sar_aed_rate" value="0.9793" step="0.0001" 
+                                       class="w-20 p-1 border rounded text-sm font-mono">
+                            </div>
+                            <button onclick="quickUpdate('SAR', 'AED')" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-white rounded border">
+                            <div class="flex items-center space-x-3">
+                                <span class="font-semibold">🇰🇼 KWD → AED</span>
+                                <input type="number" id="kwd_aed_rate" value="12.1450" step="0.0001" 
+                                       class="w-20 p-1 border rounded text-sm font-mono">
+                            </div>
+                            <button onclick="quickUpdate('KWD', 'AED')" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-white rounded border">
+                            <div class="flex items-center space-x-3">
+                                <span class="font-semibold">🇶🇦 QAR → AED</span>
+                                <input type="number" id="qar_aed_rate" value="1.0195" step="0.0001" 
+                                       class="w-20 p-1 border rounded text-sm font-mono">
+                            </div>
+                            <button onclick="quickUpdate('QAR', 'AED')" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button onclick="updateAllGulfRates()" class="w-full mt-4 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm">
+                        <i class="fas fa-sync-alt mr-2"></i>Update All Gulf Rates
+                    </button>
+                </div>
+
+                <!-- Major Currencies -->
+                <div class="border-2 border-green-200 bg-green-50 rounded-lg p-6">
+                    <h3 class="text-lg font-bold text-green-800 mb-4">💵 Major Currencies</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-white rounded border">
+                            <div class="flex items-center space-x-3">
+                                <span class="font-semibold">🇺🇸 USD → AED</span>
+                                <input type="number" id="usd_aed_rate" value="3.6725" step="0.0001" 
+                                       class="w-20 p-1 border rounded text-sm font-mono">
+                            </div>
+                            <button onclick="quickUpdate('USD', 'AED')" class="text-green-600 hover:text-green-800">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-white rounded border">
+                            <div class="flex items-center space-x-3">
+                                <span class="font-semibold">🇪🇺 EUR → USD</span>
+                                <input type="number" id="eur_usd_rate" value="1.0856" step="0.0001" 
+                                       class="w-20 p-1 border rounded text-sm font-mono">
+                            </div>
+                            <button onclick="quickUpdate('EUR', 'USD')" class="text-green-600 hover:text-green-800">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-white rounded border">
+                            <div class="flex items-center space-x-3">
+                                <span class="font-semibold">🇬🇧 GBP → USD</span>
+                                <input type="number" id="gbp_usd_rate" value="1.2634" step="0.0001" 
+                                       class="w-20 p-1 border rounded text-sm font-mono">
+                            </div>
+                            <button onclick="quickUpdate('GBP', 'USD')" class="text-green-600 hover:text-green-800">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button onclick="updateAllMajorRates()" class="w-full mt-4 bg-green-600 text-white py-2 rounded hover:bg-green-700 text-sm">
+                        <i class="fas fa-sync-alt mr-2"></i>Update All Major Rates
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Rate Management -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">📊 Detailed Rate Management</h2>
+                <div class="flex space-x-4">
+                    <button onclick="importRatesFromFile()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                        <i class="fas fa-upload mr-2"></i>Import Rates
+                    </button>
+                    <button onclick="exportRatesToFile()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-download mr-2"></i>Export Rates
+                    </button>
+                    <button onclick="resetToMarketRates()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                        <i class="fas fa-undo mr-2"></i>Reset to Market
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Currency Pair</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Market Rate</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Your Rate</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Difference</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Profit Margin</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Updated</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="ratesTable">
+                        <!-- Rates will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Rate History & Analytics -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <!-- Rate Change History -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-6">📈 Rate Change History</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <div>
+                                <div class="font-semibold">AED → IRT Rate Updated</div>
+                                <div class="text-sm text-gray-600">11,240.0000 → 11,245.5000</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium">+0.05%</div>
+                            <div class="text-xs text-gray-600">2 min ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <div>
+                                <div class="font-semibold">USD → IRT Rate Updated</div>
+                                <div class="text-sm text-gray-600">41,270.0000 → 41,285.0000</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium">+0.04%</div>
+                            <div class="text-xs text-gray-600">15 min ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                            <div>
+                                <div class="font-semibold">SAR → AED Rate Updated</div>
+                                <div class="text-sm text-gray-600">0.9788 → 0.9793</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium">+0.05%</div>
+                            <div class="text-xs text-gray-600">1 hour ago</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="viewFullHistory()" class="w-full mt-4 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 text-sm">
+                    <i class="fas fa-history mr-2"></i>View Full History
+                </button>
+            </div>
+
+            <!-- Profit Analysis -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-6">💰 Profit Analysis</h3>
+                
+                <div class="space-y-4">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-green-800">Today's Profit from Rates</span>
+                            <span class="text-green-600 font-bold">$2,847</span>
+                        </div>
+                        <div class="text-sm text-green-700">From 1,234 transactions</div>
+                    </div>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-blue-800">Best Performing Pair</span>
+                            <span class="text-blue-600 font-bold">AED → IRT</span>
+                        </div>
+                        <div class="text-sm text-blue-700">3.2% average margin, 847 transactions</div>
+                    </div>
+                    
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-purple-800">Rate Updates Today</span>
+                            <span class="text-purple-600 font-bold">47</span>
+                        </div>
+                        <div class="text-sm text-purple-700">Last update: 2 minutes ago</div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 space-y-3">
+                    <button onclick="optimizeRates()" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 text-sm">
+                        <i class="fas fa-magic mr-2"></i>Optimize All Rates
+                    </button>
+                    <button onclick="generateProfitReport()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm">
+                        <i class="fas fa-chart-bar mr-2"></i>Generate Profit Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/language.js"></script>
+    <script>
+        // Mock rate data
+        let exchangeRates = {
+            'AED_IRT': { market: 11240.2000, custom: 11245.5000, updated: '2024-02-16 14:32' },
+            'USD_IRT': { market: 41275.5000, custom: 41285.0000, updated: '2024-02-16 14:17' },
+            'SAR_AED': { market: 0.9788, custom: 0.9793, updated: '2024-02-16 13:30' },
+            'USD_AED': { market: 3.6720, custom: 3.6725, updated: '2024-02-16 14:30' },
+            'EUR_USD': { market: 1.0851, custom: 1.0856, updated: '2024-02-16 14:25' },
+            'GBP_USD': { market: 1.2629, custom: 1.2634, updated: '2024-02-16 14:20' },
+            'KWD_AED': { market: 12.1400, custom: 12.1450, updated: '2024-02-16 14:15' },
+            'QAR_AED': { market: 1.0190, custom: 1.0195, updated: '2024-02-16 14:10' },
+            'AED_INR': { market: 22.62, custom: 22.65, updated: '2024-02-16 14:05' },
+            'AED_PKR': { market: 75.80, custom: 75.84, updated: '2024-02-16 14:00' }
+        };
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            populateRatesTable();
+            startRealTimeUpdates();
+        });
+
+        function populateRatesTable() {
+            const tbody = document.getElementById('ratesTable');
+            if (!tbody) return;
+
+            tbody.innerHTML = Object.entries(exchangeRates).map(([pair, data]) => {
+                const difference = ((data.custom - data.market) / data.market * 100);
+                const diffColor = difference >= 0 ? 'text-green-600' : 'text-red-600';
+                const diffIcon = difference >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="font-semibold">${pair.replace('_', ' → ')}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="font-mono">${data.market.toLocaleString()}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <input type="number" value="${data.custom}" step="0.0001" 
+                                   onchange="updateCustomRate('${pair}', this.value)"
+                                   class="font-mono border rounded px-2 py-1 w-32 bg-yellow-50">
+                        </td>
+                        <td class="px-6 py-4 ${diffColor}">
+                            <div class="flex items-center space-x-1">
+                                <i class="fas ${diffIcon} text-xs"></i>
+                                <span class="font-semibold">${Math.abs(difference).toFixed(2)}%</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-semibold">${Math.abs(difference).toFixed(2)}%</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm">${data.updated}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex space-x-2">
+                                <button onclick="useMarketRate('${pair}')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button onclick="addMargin('${pair}', 2.5)" class="text-green-600 hover:text-green-800 text-sm">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button onclick="resetRate('${pair}')" class="text-gray-600 hover:text-gray-800 text-sm">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function quickUpdate(fromCurrency, toCurrency) {
+            const pair = `${fromCurrency}_${toCurrency}`;
+            const inputId = `${fromCurrency.toLowerCase()}_${toCurrency.toLowerCase()}_rate`;
+            const input = document.getElementById(inputId);
+            
+            if (input && exchangeRates[pair]) {
+                const newRate = parseFloat(input.value);
+                exchangeRates[pair].custom = newRate;
+                exchangeRates[pair].updated = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                
+                showNotification(`${pair.replace('_', ' → ')} rate updated to ${newRate.toLocaleString()}`, 'success');
+                populateRatesTable();
+            }
+        }
+
+        function updateCustomRate(pair, newRate) {
+            if (exchangeRates[pair]) {
+                exchangeRates[pair].custom = parseFloat(newRate);
+                exchangeRates[pair].updated = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                populateRatesTable();
+            }
+        }
+
+        function useMarketRate(pair) {
+            if (exchangeRates[pair]) {
+                exchangeRates[pair].custom = exchangeRates[pair].market;
+                exchangeRates[pair].updated = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                populateRatesTable();
+                showNotification(`${pair.replace('_', ' → ')} updated to market rate`, 'success');
+            }
+        }
+
+        function addMargin(pair, marginPercent) {
+            if (exchangeRates[pair]) {
+                const marketRate = exchangeRates[pair].market;
+                exchangeRates[pair].custom = marketRate * (1 + marginPercent / 100);
+                exchangeRates[pair].updated = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                populateRatesTable();
+                showNotification(`${marginPercent}% margin added to ${pair.replace('_', ' → ')}`, 'success');
+            }
+        }
+
+        function resetRate(pair) {
+            useMarketRate(pair);
+        }
+
+        function updateFromMarket(currency) {
+            Object.keys(exchangeRates).forEach(pair => {
+                if (pair.includes(currency)) {
+                    useMarketRate(pair);
+                }
+            });
+            showNotification(`All ${currency} rates updated from market`, 'success');
+        }
+
+        function applyMargin(currency, margin) {
+            Object.keys(exchangeRates).forEach(pair => {
+                if (pair.includes(currency)) {
+                    addMargin(pair, margin);
+                }
+            });
+            showNotification(`${margin}% margin applied to all ${currency} rates`, 'success');
+        }
+
+        function updateAllGulfRates() {
+            ['SAR_AED', 'KWD_AED', 'QAR_AED'].forEach(pair => {
+                if (exchangeRates[pair]) {
+                    addMargin(pair, 1.5); // Small margin for Gulf currencies
+                }
+            });
+            showNotification('All Gulf currency rates updated with 1.5% margin', 'success');
+        }
+
+        function updateAllMajorRates() {
+            ['USD_AED', 'EUR_USD', 'GBP_USD'].forEach(pair => {
+                if (exchangeRates[pair]) {
+                    addMargin(pair, 2.0); // Standard margin for major currencies
+                }
+            });
+            showNotification('All major currency rates updated with 2.0% margin', 'success');
+        }
+
+        function startRealTimeUpdates() {
+            // Simulate market rate changes every 30 seconds
+            setInterval(() => {
+                Object.keys(exchangeRates).forEach(pair => {
+                    // Random small changes in market rates
+                    const change = (Math.random() - 0.5) * 0.002; // ±0.1% change
+                    exchangeRates[pair].market *= (1 + change);
+                });
+                
+                // Update display
+                populateRatesTable();
+                
+                // Update last update time
+                document.getElementById('lastUpdate').textContent = 'Updated just now';
+            }, 30000);
+        }
+
+        function optimizeRates() {
+            showNotification('Optimizing all rates based on market conditions...', 'info');
+            
+            setTimeout(() => {
+                Object.keys(exchangeRates).forEach(pair => {
+                    // Apply optimal margin based on currency pair
+                    let margin = 2.5; // Default
+                    if (pair.includes('IRT')) margin = 3.0; // Higher margin for Iranian Toman
+                    if (pair.includes('SAR') || pair.includes('KWD') || pair.includes('QAR')) margin = 1.5; // Lower for Gulf
+                    
+                    addMargin(pair, margin);
+                });
+                
+                showNotification('All rates optimized successfully!', 'success');
+            }, 2000);
+        }
+
+        function generateProfitReport() {
+            showNotification('Generating profit analysis report...', 'info');
+            setTimeout(() => {
+                showNotification('Profit report generated and saved to downloads', 'success');
+            }, 1500);
+        }
+
+        function importRatesFromFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.csv,.xlsx,.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    showNotification(`Importing rates from ${file.name}...`, 'info');
+                    setTimeout(() => {
+                        showNotification('Rates imported successfully!', 'success');
+                        populateRatesTable();
+                    }, 2000);
+                }
+            };
+            input.click();
+        }
+
+        function exportRatesToFile() {
+            showNotification('Exporting current rates to file...', 'info');
+            setTimeout(() => {
+                showNotification('Rates exported successfully!', 'success');
+            }, 1000);
+        }
+
+        function resetToMarketRates() {
+            if (confirm('Are you sure you want to reset all rates to market rates? This will remove all custom margins.')) {
+                Object.keys(exchangeRates).forEach(pair => {
+                    useMarketRate(pair);
+                });
+                showNotification('All rates reset to market rates', 'success');
+            }
+        }
+
+        function viewFullHistory() {
+            showNotification('Opening rate change history...', 'info');
+        }
+    </script>
+</body>
+</html>

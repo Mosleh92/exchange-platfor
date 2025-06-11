@@ -1,0 +1,307 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📄 Document Management - Exchange Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-file-upload text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Document Management</h1>
+                        <p class="text-indigo-200 text-sm">KYC & Compliance Center</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-indigo-200">Customer: CUST001</span>
+                    <button class="bg-indigo-700 px-4 py-2 rounded hover:bg-indigo-800">
+                        <i class="fas fa-arrow-left"></i> Back to Portal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- KYC Status -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold">
+                    <i class="fas fa-user-check text-green-600"></i> KYC Verification Status
+                </h2>
+                <div class="flex items-center space-x-4">
+                    <span class="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full font-semibold">
+                        <i class="fas fa-clock"></i> Under Review
+                    </span>
+                    <span class="text-sm text-gray-600">Last updated: 2 hours ago</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-gray-700">Verification Progress</span>
+                    <span class="text-sm font-medium text-gray-700">75%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-blue-600 to-green-600 h-3 rounded-full" style="width: 75%"></div>
+                </div>
+            </div>
+
+            <!-- Requirements Checklist -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-green-800">Personal ID</h4>
+                            <p class="text-sm text-green-700">✅ Uploaded & Verified</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-green-800">Passport Copy</h4>
+                            <p class="text-sm text-green-700">✅ Uploaded & Verified</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
+                    <div class="flex items-center">
+                        <i class="fas fa-clock text-yellow-600 text-xl mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-yellow-800">Proof of Address</h4>
+                            <p class="text-sm text-yellow-700">⏳ Under Review</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Upload Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Upload Form -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold mb-6">
+                    <i class="fas fa-cloud-upload-alt text-blue-600"></i> Upload New Document
+                </h3>
+
+                <form id="documentUploadForm" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Document Type</label>
+                        <select class="w-full p-3 border rounded-lg" required>
+                            <option value="">Select Document Type</option>
+                            <option value="passport">🛂 Passport</option>
+                            <option value="national_id">🆔 National ID</option>
+                            <option value="driving_license">🚗 Driving License</option>
+                            <option value="utility_bill">⚡ Utility Bill</option>
+                            <option value="bank_statement">🏦 Bank Statement</option>
+                            <option value="visa">📄 Visa/Residence Permit</option>
+                            <option value="other">📋 Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Document Description</label>
+                        <input type="text" placeholder="e.g., UAE Passport - Front Page" 
+                               class="w-full p-3 border rounded-lg" required>
+                    </div>
+
+                    <!-- Drag & Drop Upload Area -->
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors"
+                         id="dropZone">
+                        <div class="space-y-4">
+                            <i class="fas fa-cloud-upload-alt text-6xl text-gray-400"></i>
+                            <div>
+                                <p class="text-xl font-semibold text-gray-700">Drop files here</p>
+                                <p class="text-gray-500">or click to browse</p>
+                            </div>
+                            <input type="file" id="fileInput" multiple accept="image/*,.pdf" class="hidden">
+                            <button type="button" onclick="document.getElementById('fileInput').click()" 
+                                    class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-folder-open"></i> Browse Files
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-4">
+                            Supported: JPG, PNG, PDF (Max 10MB per file)
+                        </p>
+                    </div>
+
+                    <!-- File Preview Area -->
+                    <div id="filePreview" class="space-y-3">
+                        <!-- Preview items will be added here -->
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-blue-800 mb-2">📋 Upload Guidelines:</h4>
+                        <ul class="text-sm text-blue-700 space-y-1">
+                            <li>• Ensure documents are clear and readable</li>
+                            <li>• All four corners should be visible</li>
+                            <li>• No reflections or shadows</li>
+                            <li>• Documents should be in color (not black & white)</li>
+                            <li>• File size should not exceed 10MB</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-semibold">
+                        <i class="fas fa-upload"></i> Upload Documents
+                    </button>
+                </form>
+            </div>
+
+            <!-- Uploaded Documents -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold mb-6">
+                    <i class="fas fa-folder text-purple-600"></i> Your Documents
+                </h3>
+
+                <div class="space-y-4" id="documentsList">
+                    <!-- Document Item -->
+                    <div class="border rounded-lg p-4 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-green-100 p-3 rounded-lg">
+                                    <i class="fas fa-passport text-green-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">UAE Passport</h4>
+                                    <p class="text-sm text-gray-600">Uploaded: Feb 15, 2024</p>
+                                    <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                        ✅ Verified
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 p-2">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="text-green-600 hover:text-green-800 p-2">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800 p-2">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Item -->
+                    <div class="border rounded-lg p-4 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-blue-100 p-3 rounded-lg">
+                                    <i class="fas fa-id-card text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Emirates ID</h4>
+                                    <p class="text-sm text-gray-600">Uploaded: Feb 15, 2024</p>
+                                    <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                        ✅ Verified
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 p-2">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="text-green-600 hover:text-green-800 p-2">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800 p-2">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Item -->
+                    <div class="border rounded-lg p-4 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-yellow-100 p-3 rounded-lg">
+                                    <i class="fas fa-file-invoice text-yellow-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">DEWA Bill</h4>
+                                    <p class="text-sm text-gray-600">Uploaded: Feb 16, 2024</p>
+                                    <span class="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                                        ⏳ Under Review
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 p-2">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="text-green-600 hover:text-green-800 p-2">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800 p-2">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="text-center py-12 hidden">
+                    <i class="fas fa-folder-open text-6xl text-gray-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-600 mb-2">No Documents Yet</h3>
+                    <p class="text-gray-500">Upload your first document to get started with verification</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Tips -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+            <h3 class="text-xl font-bold mb-6">
+                <i class="fas fa-lightbulb text-yellow-600"></i> Verification Tips
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="bg-blue-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <i class="fas fa-camera text-blue-600 text-2xl"></i>
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-2">High Quality Photos</h4>
+                    <p class="text-sm text-gray-600">Use good lighting and ensure documents are clearly visible</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="bg-green-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <i class="fas fa-check-double text-green-600 text-2xl"></i>
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Complete Information</h4>
+                    <p class="text-sm text-gray-600">Ensure all text and details are readable and complete</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="bg-purple-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <i class="fas fa-clock text-purple-600 text-2xl"></i>
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Quick Processing</h4>
+                    <p class="text-sm text-gray-600">Most documents are reviewed within 24-48 hours</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/documents.js"></script>
+</body>
+</html>

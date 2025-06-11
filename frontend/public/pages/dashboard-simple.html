@@ -1,0 +1,262 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Multi-Tenant SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-home text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Dashboard</h1>
+                        <p class="text-blue-200 text-sm">Multi-Tenant SaaS Platform</p>
+                    </div>
+                </div>
+                
+                <!-- Navigation -->
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="px-3 py-2 bg-white bg-opacity-20 rounded text-white">
+                        <i class="fas fa-home mr-1"></i>Dashboard
+                    </a>
+                    <a href="tenant-management.html" class="px-3 py-2 hover:bg-white hover:bg-opacity-10 rounded text-white">
+                        <i class="fas fa-building mr-1"></i>Tenants
+                    </a>
+                    <a href="p2p-marketplace.html" class="px-3 py-2 hover:bg-white hover:bg-opacity-10 rounded text-white">
+                        <i class="fas fa-handshake mr-1"></i>P2P
+                    </a>
+                    <a href="customer-portal.html" class="px-3 py-2 hover:bg-white hover:bg-opacity-10 rounded text-white">
+                        <i class="fas fa-users mr-1"></i>Customers
+                    </a>
+                    <a href="calculator.html" class="px-3 py-2 hover:bg-white hover:bg-opacity-10 rounded text-white">
+                        <i class="fas fa-calculator mr-1"></i>Calculator
+                    </a>
+                </div>
+                
+                <div class="text-right">
+                    <div class="font-semibold" id="currentUserName">Loading...</div>
+                    <div class="text-sm opacity-80" id="userRoleDisplay">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Welcome -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-2">
+                Welcome, <span id="userDisplayName">Loading...</span>! 👋
+            </h2>
+            <p class="text-gray-600">
+                Role: <span id="userRoleDisplay2" class="font-semibold text-blue-600">Loading...</span>
+            </p>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-chart-line text-green-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-gray-600 text-sm">Today's Transactions</p>
+                        <h3 class="text-2xl font-bold">248</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-dollar-sign text-blue-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-gray-600 text-sm">Total Volume</p>
+                        <h3 class="text-2xl font-bold">$2.4M</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <i class="fas fa-users text-purple-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-gray-600 text-sm">Active Customers</p>
+                        <h3 class="text-2xl font-bold">1,847</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="bg-orange-100 p-3 rounded-full">
+                        <i class="fas fa-handshake text-orange-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-gray-600 text-sm">P2P Trades</p>
+                        <h3 class="text-2xl font-bold">127</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- P2P Widget (Only for Exchangers) -->
+        <div id="p2pWidget" class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg shadow-lg p-6 mb-8 text-white" style="display: none;">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="text-2xl font-bold">🤝 P2P Marketplace</h2>
+                    <p class="text-purple-200">Inter-exchanger trading network</p>
+                </div>
+                <a href="p2p-marketplace.html" class="bg-white text-purple-600 px-4 py-2 rounded hover:bg-purple-50">
+                    Open P2P
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white bg-opacity-20 rounded p-3">
+                    <div class="text-sm opacity-80">Active Orders</div>
+                    <div class="text-xl font-bold">5</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded p-3">
+                    <div class="text-sm opacity-80">Today Volume</div>
+                    <div class="text-xl font-bold">$47K</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded p-3">
+                    <div class="text-sm opacity-80">Success Rate</div>
+                    <div class="text-xl font-bold">98.7%</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded p-3">
+                    <div class="text-sm opacity-80">Rating</div>
+                    <div class="text-xl font-bold">4.9★</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Widget (Only for Customers) -->
+        <div id="customerWidget" class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg p-6 mb-8 text-white" style="display: none;">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="text-2xl font-bold">👤 Your Account</h2>
+                    <p class="text-blue-200">Customer portal</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm opacity-80">Balance</div>
+                    <div class="text-2xl font-bold">$4,825.50</div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white bg-opacity-20 rounded p-3">
+                    <div class="text-sm opacity-80">Last Transaction</div>
+                    <div class="font-semibold">2 hours ago</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded p-3">
+                    <div class="text-sm opacity-80">This Month</div>
+                    <div class="font-semibold">$12,450</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded p-3">
+                    <div class="text-sm opacity-80">KYC Status</div>
+                    <div class="font-semibold text-green-300">Verified ✅</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded p-3">
+                    <div class="text-sm opacity-80">Account Type</div>
+                    <div class="font-semibold">Regular</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-bold mb-6">Quick Actions</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                
+                <a href="calculator.html" class="block bg-blue-50 hover:bg-blue-100 p-6 rounded-lg text-center transition-colors">
+                    <div class="bg-blue-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <i class="fas fa-calculator text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Calculator</h3>
+                    <p class="text-sm text-gray-600">Convert currencies</p>
+                </a>
+                
+                <a href="p2p-marketplace.html" class="block bg-purple-50 hover:bg-purple-100 p-6 rounded-lg text-center transition-colors">
+                    <div class="bg-purple-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <i class="fas fa-handshake text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">P2P Market</h3>
+                    <p class="text-sm text-gray-600">Trade with exchangers</p>
+                </a>
+                
+                <a href="customer-portal.html" class="block bg-teal-50 hover:bg-teal-100 p-6 rounded-lg text-center transition-colors">
+                    <div class="bg-teal-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <i class="fas fa-users text-teal-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Customers</h3>
+                    <p class="text-sm text-gray-600">Manage customers</p>
+                </a>
+                
+                <a href="reports.html" class="block bg-green-50 hover:bg-green-100 p-6 rounded-lg text-center transition-colors">
+                    <div class="bg-green-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <i class="fas fa-chart-bar text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Reports</h3>
+                    <p class="text-sm text-gray-600">View analytics</p>
+                </a>
+                
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Load Scripts -->
+    <script src="../js/auth.js"></script>
+    <script src="../js/demo-controls.js"></script>
+    
+    <script>
+    // Update interface when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            console.log('🏠 Dashboard loading...');
+            
+            // Update user info
+            if (window.currentUser) {
+                const nameElements = document.querySelectorAll('#userDisplayName, #currentUserName');
+                nameElements.forEach(el => {
+                    el.textContent = window.currentUser.name;
+                });
+                
+                const roleElements = document.querySelectorAll('#userRoleDisplay, #userRoleDisplay2');
+                roleElements.forEach(el => {
+                    el.textContent = window.currentUser.role.replace('_', ' ').toUpperCase();
+                });
+                
+                // Show/hide widgets
+                const p2pWidget = document.getElementById('p2pWidget');
+                if (p2pWidget && window.hasPermission && window.hasPermission('p2p')) {
+                    p2pWidget.style.display = 'block';
+                }
+                
+                const customerWidget = document.getElementById('customerWidget');
+                if (customerWidget && window.currentUser.role === 'customer') {
+                    customerWidget.style.display = 'block';
+                }
+                
+                console.log('✅ Dashboard loaded for:', window.currentUser.role);
+            }
+        }, 500);
+    });
+    </script>
+
+</body>
+</html>
+D

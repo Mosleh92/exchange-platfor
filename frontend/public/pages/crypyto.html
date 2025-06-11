@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ارزهای دیجیتال - پلتفرم صرافی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Vazir', sans-serif; }
+        .persian-num { font-family: 'IRANSans', sans-serif; }
+        .crypto-card { 
+            transition: all 0.3s ease; 
+            border-left: 4px solid transparent;
+        }
+        .crypto-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+        }
+        .crypto-up { border-left-color: #059669; }
+        .crypto-down { border-left-color: #dc2626; }
+        .price-sparkline { height: 40px; width: 80px; }
+        
+        .crypto-bg-bitcoin { background: linear-gradient(135deg, #f7931e 0%, #ff6b35 100%); }
+        .crypto-bg-ethereum { background: linear-gradient(135deg, #627eea 0%, #8c7ae6 100%); }
+        .crypto-bg-binance { background: linear-gradient(135deg, #f3ba2f 0%, #feca57 100%); }
+        .crypto-bg-default { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        
+        .trading-pair-active { background: #3b82f6; color: white; }
+        .order-buy { border-left: 4px solid #10b981; }
+        .order-sell { border-left: 4px solid #ef4444; }
+        
+        @keyframes pulse-crypto {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .live-price { animation: pulse-crypto 2s infinite; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        <i class="fab fa-bitcoin text-orange-500 ml-2"></i>
+                        ارزهای دیجیتال
+                    </h1>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="mr-2">به‌روزرسانی زنده</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <button id="refreshCryptoBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-sync ml-1"></i>
+                        به‌روزرسانی
+                    </button>
+                    <button id="tradingBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                        <i class="fas fa-exchange-alt ml-1"></i>
+                        معامله
+                    </button>
+                    <button id="portfolioBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                        <i class="fas fa-wallet ml-1"></i>
+                        کیف پول
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Market Overview -->
+        <div class="crypto-bg-default rounded-lg shadow-lg p-6 mb-8 text-white">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-xl font-bold">نمای کلی بازار کریپتو</h2>
+                    <p class="text-gray-200 text-sm">آخرین به‌روزرسانی: <span id="cryptoLastUpdate"></span></p>
+                </div>
+                <div class="flex items-center space-x-6 space-x-reverse">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold persian-num" id="totalMarketCap">2.1T</div>
+                        <div class="text-sm text-gray-200">ارزش کل بازار</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold persian-num text-green-300" id="marketChange24h">+2.45%</div>
+                        <div class="text-sm text-gray-200">تغییر 24 ساعت</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold persian-num" id="btcDominance">42.8%</div>
+                        <div class="text-sm text-gray-200">تسلط بیت‌کوین</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white bg-opacity-20 rounded-lg p-4 text-center">
+                    <div class="text-lg font-bold">₿ BTC/USDT</div>
+                    <div class="text-2xl font-bold persian-num live-price">67,245</div>
+                    <div class="text-sm text-green-300">+3.24%</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg p-4 text-center">
+                    <div class="text-lg font-bold">Ξ ETH/USDT</div>
+                    <div class="text-2xl font-bold persian-num live-price">3,456</div>
+                    <div class="text-sm text-green-300">+5.67%</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg p-4 text-center">
+                    <div class="text-lg font-bold">⚡ BNB/USDT</div>
+                    <div class="text-2xl font-bold persian-num live-price">589</div>
+                    <div class="text-sm text-red-300">-1.23%</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg p-4 text-center">
+                    <div class="text-lg font-bold">💎 USDT/AED</div>
+                    <div class="text-2xl font-bold persian-num live-price">3.67</div>
+                    <div class="text-sm text-green-300">+0.15%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crypto Trading Interface -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Trading Pairs -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">
+                    <i class="fas fa-coins text-orange-500 ml-2"></i>
+                    جفت‌های معاملاتی
+                </h3>
+                <div class="space-y-2" id="tradingPairs">
+                    <!-- Dynamic trading pairs will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Quick Trade -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">
+                    <i class="fas fa-bolt text-blue-600 ml-2"></i>
+                    معامله سریع
+                </h3>
+                <form id="quickTradeForm" class="space-y-4">
+                    <div class="flex space-x-2 space-x-reverse">
+                        <button type="button" id="buyBtn" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                            خرید
+                        </button>
+                        <button type="button" id="sellBtn" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700">
+                            فروش
+                        </button>
+                    </div>
+                    <select id="tradeCrypto" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="">انتخاب ارز دیجیتال</option>
+                        <option value="BTC">بیت‌کوین (BTC)</option>
+                        <option value="ETH">اتریوم (ETH)</option>
+                        <option value="BNB">بایننس کوین (BNB)</option>
+                        <option value="USDT">تتر (USDT)</option>
+                    </select>
+                    <input type="number" id="tradeAmount" step="0.00001" placeholder="مقدار" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <input type="number" id="tradePrice" step="0.01" placeholder="قیمت (AED)" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <div class="bg-gray-100 p-3 rounded-lg">
+                        <div class="flex justify-between text-sm">
+                            <span>کل مبلغ:</span>
+                            <span id="totalAmount" class="font-semibold persian-num">0 AED</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                        ثبت سفارش
+                    </button>
+                </form>
+            </div>
+
+            <!-- Portfolio Balance -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">
+                    <i class="fas fa-wallet text-purple-600 ml-2"></i>
+                    موجودی کیف پول
+                </h3>
+                <div class="space-y-3" id="portfolioBalance">
+                    <!-- Dynamic portfolio balance will be inserted here -->
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">ارزش کل:</span>
+                        <span class="font-bold text-lg persian-num text-green-600" id="totalPortfolioValue">0 AED</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crypto Market Table -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">جدول ارزهای دیجیتال</h2>
+                <div class="flex space-x-3 space-x-reverse">
+                    <select id="cryptoFilter" class="px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="all">همه</option>
+                        <option value="favorites">علاقه‌مندی‌ها</option>
+                        <option value="gainers">برندگان</option>
+                        <option value="losers">بازندگان</option>
+                    </select>
+                    <button id="addToWatchlistBtn" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700">
+                        <i class="fas fa-star ml-1"></i>
+                        لیست مشاهده
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">ارز</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">قیمت (AED)</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تغییر 24h</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">حجم 24h</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">ارزش بازار</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">نمودار</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cryptoTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Dynamic content will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Charts and Analysis -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Price Chart -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">نمودار قیمت</h3>
+                    <div class="flex space-x-2 space-x-reverse">
+                        <select id="chartPair" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <option value="BTC_AED">BTC/AED</option>
+                            <option value="ETH_AED">ETH/AED</option>
+                            <option value="BNB_AED">BNB/AED</option>
+                        </select>
+                        <select id="chartTimeframe" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <option value="1H">1 ساعت</option>
+                            <option value="4H">4 ساعت</option>
+                            <option value="1D">1 روز</option>
+                            <option value="1W">1 هفته</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="h-80">
+                    <canvas id="cryptoPriceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Market Analysis -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">تحلیل بازار</h3>
+                <div class="space-y-4">
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-green-600 mb-2">🚀 برترین عملکردها</h4>
+                        <div class="space-y-2" id="topGainers">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-red-600 mb-2">📉 بیشترین افت‌ها</h4>
+                        <div class="space-y-2" id="topLosers">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-blue-600 mb-2">📊 آمار کلی</h4>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="flex justify-between">
+                                <span>تعداد ارزها:</span>
+                                <span class="persian-num" id="totalCryptos">25</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>میانگین تغییر:</span>
+                                <span class="persian-num text-green-600" id="avgCryptoChange">+2.15%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>حجم کل معاملات:</span>
+                                <span class="persian-num" id="totalVolume">89.5B</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>ترس و طمع:</span>
+                                <span class="persian-num text-orange-600" id="fearGreedIndex">72</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trading Modal -->
+    <div id="tradingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">سفارش‌های معاملاتی</h3>
+                    <button id="closeTradingModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Active Orders -->
+                        <div>
+                            <h4 class="font-semibold mb-3">سفارش‌های فعال</h4>
+                            <div class="space-y-2" id="activeOrders">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                        
+                        <!-- Order History -->
+                        <div>
+                            <h4 class="font-semibold mb-3">تاریخچه سفارش‌ها</h4>
+                            <div class="space-y-2" id="orderHistory">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/crypto.js"></script>
+    <script src="../js/language.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>

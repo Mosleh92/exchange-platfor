@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم حسابداری - پلتفرم صرافی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Vazir', sans-serif; }
+        .section-content { display: none; }
+        .section-content.active { display: block; }
+        .persian-num { font-family: 'IRANSans', sans-serif; }
+        .spinner { width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .accounting-card { 
+            transition: all 0.3s ease; 
+            border-left: 4px solid transparent;
+        }
+        .accounting-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
+        .profit-card { border-left-color: #059669; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); }
+        .loss-card { border-left-color: #dc2626; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); }
+        .revenue-card { border-left-color: #2563eb; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
+        .expense-card { border-left-color: #d97706; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
+        
+        .profit-positive { color: #059669; }
+        .profit-negative { color: #dc2626; }
+        .chart-container { height: 400px; }
+        
+        .nav-tab {
+            padding: 12px 24px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .nav-tab:hover { background-color: #f3f4f6; }
+        .nav-tab.active { 
+            border-bottom-color: #2563eb; 
+            background-color: #eff6ff; 
+            color: #2563eb; 
+        }
+        
+        .account-item {
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+        .account-item:hover {
+            background-color: #f9fafb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .balance-sheet-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        <i class="fas fa-chart-line text-green-600 ml-2"></i>
+                        سیستم حسابداری
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="text-sm text-gray-600">
+                        <i class="fas fa-calendar ml-1"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                    <button id="exportAccountingBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-file-excel ml-1"></i>
+                        گزارش Excel
+                    </button>
+                    <button id="printReportBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-print ml-1"></i>
+                        چاپ گزارش
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Navigation Tabs -->
+        <div class="bg-white rounded-lg shadow-sm mb-8 overflow-hidden">
+            <div class="flex border-b">
+                <button class="nav-tab active" data-section="overview">
+                    <i class="fas fa-tachometer-alt ml-2"></i>
+                    نمای کلی
+                </button>
+                <button class="nav-tab" data-section="profit-loss">
+                    <i class="fas fa-chart-pie ml-2"></i>
+                    سود و زیان
+                </button>
+                <button class="nav-tab" data-section="balance-sheet">
+                    <i class="fas fa-balance-scale ml-2"></i>
+                    ترازنامه
+                </button>
+                <button class="nav-tab" data-section="general-ledger">
+                    <i class="fas fa-book ml-2"></i>
+                    دفتر کل
+                </button>
+                <button class="nav-tab" data-section="expenses">
+                    <i class="fas fa-receipt ml-2"></i>
+                    هزینه‌ها
+                </button>
+                <button class="nav-tab" data-section="analysis">
+                    <i class="fas fa-analytics ml-2"></i>
+                    تحلیل مالی
+                </button>
+            </div>
+        </div>
+
+        <!-- Overview Section -->
+        <div id="overviewSection" class="section-content active">
+            <!-- Key Financial Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="accounting-card profit-card bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">سود خالص امروز</p>
+                            <p id="todayNetProfit" class="text-2xl font-bold text-green-700 persian-num">0</p>
+                            <div class="flex items-center mt-2">
+                                <span id="profitGrowth" class="text-sm profit-positive">+12.5%</span>
+                                <span class="text-sm text-gray-500 mr-2">نسبت به دیروز</span>
+                            </div>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-trending-up text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accounting-card revenue-card bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">کل درآمد</p>
+                            <p id="totalRevenue" class="text-2xl font-bold text-blue-700 persian-num">0</p>
+                            <div class="flex items-center mt-2">
+                                <span id="revenueGrowth" class="text-sm profit-positive">+8.3%</span>
+                                <span class="text-sm text-gray-500 mr-2">ماه جاری</span>
+                            </div>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-dollar-sign text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accounting-card expense-card bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">کل هزینه‌ها</p>
+                            <p id="totalExpenses" class="text-2xl font-bold text-orange-700 persian-num">0</p>
+                            <div class="flex items-center mt-2">
+                                <span id="expenseGrowth" class="text-sm profit-negative">+5.1%</span>
+                                <span class="text-sm text-gray-500 mr-2">ماه جاری</span>
+                            </div>
+                        </div>
+                        <div class="bg-orange-100 p-3 rounded-full">
+                            <i class="fas fa-credit-card text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accounting-card bg-white rounded-lg shadow-lg p-6" style="border-left-color: #7c3aed; background: linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%);">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">نرخ سود</p>
+                            <p id="profitMargin" class="text-2xl font-bold text-purple-700 persian-num">0%</p>
+                            <div class="flex items-center mt-2">
+                                <span id="marginGrowth" class="text-sm profit-positive">+2.1%</span>
+                                <span class="text-sm text-gray-500 mr-2">بهبود</span>
+                            </div>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i class="fas fa-percentage text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Monthly Profit/Loss Chart -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">نمودار سود/زیان ماهانه</h3>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <button class="text-sm text-gray-500 hover:text-gray-700">6 ماه</button>
+                            <button class="text-sm text-blue-600 border-b border-blue-600">12 ماه</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthlyProfitChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Revenue Breakdown -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">توزیع درآمد</h3>
+                    <div class="chart-container">
+                        <canvas id="revenueBreakdownChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions & Quick Stats -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Quick Financial Stats -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">آمار سریع مالی</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">میانگین سود روزانه:</span>
+                            <span id="avgDailyProfit" class="font-semibold persian-num profit-positive">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">بیشترین سود ماه:</span>
+                            <span id="maxMonthlyProfit" class="font-semibold persian-num profit-positive">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">تعداد معاملات سودده:</span>
+                            <span id="profitableTransactions" class="font-semibold persian-num">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">نرخ موفقیت:</span>
+                            <span id="successRate" class="font-semibold persian-num profit-positive">0%</span>
+                        </div>
+                        <div class="pt-4 border-t">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">مجموع دارایی‌ها:</span>
+                                <span id="totalAssets" class="font-bold text-lg persian-num text-blue-600">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Performing Currencies -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">برترین ارزها (سود)</h3>
+                    <div class="space-y-3" id="topCurrencies">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Recent Accounting Entries -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">آخرین ثبت‌های حسابداری</h3>
+                    <div class="space-y-3" id="recentEntries">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profit & Loss Section -->
+        <div id="profit-lossSection" class="section-content">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">گزارش سود و زیان</h2>
+                    <div class="flex space-x-3 space-x-reverse">
+                        <select id="plPeriod" class="px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="today">امروز</option>
+                            <option value="week">هفته جاری</option>
+                            <option value="month" selected>ماه جاری</option>
+                            <option value="quarter">فصل جاری</option>
+                            <option value="year">سال جاری</option>
+                        </select>
+                        <button id="generatePLReport" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            تولید گزارش
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Revenue Section -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-green-700 mb-4">
+                            <i class="fas fa-plus-circle ml-2"></i>
+                            درآمدها
+                        </h3>
+                        <div class="space-y-3" id="revenueItems">
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span>سود تبدیل ارز</span>
+                                <span class="font-semibold persian-num text-green-700" id="currencyProfits">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span>کمیسیون حواله</span>
+                                <span class="font-semibold persian-num text-green-700" id="hawalaCommission">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span>کمیسیون همکاران</span>
+                                <span class="font-semibold persian-num text-green-700" id="partnerCommissions">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span>سایر درآمدها</span>
+                                <span class="font-semibold persian-num text-green-700" id="otherRevenue">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-green-100 rounded-lg border-t-2 border-green-600">
+                                <span class="font-bold">مجموع درآمدها:</span>
+                                <span class="font-bold text-lg persian-num text-green-700" id="totalRevenueDetail">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expenses Section -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-red-700 mb-4">
+                            <i class="fas fa-minus-circle ml-2"></i>
+                            هزینه‌ها
+                        </h3>
+                        <div class="space-y-3" id="expenseItems">
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span>حقوق و دستمزد</span>
+                                <span class="font-semibold persian-num text-red-700" id="salaryExpenses">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span>اجاره و امور اداری</span>
+                                <span class="font-semibold persian-num text-red-700" id="operationalExpenses">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span>هزینه‌های بانکی</span>
+                                <span class="font-semibold persian-num text-red-700" id="bankingFees">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span>استهلاک</span>
+                                <span class="font-semibold persian-num text-red-700" id="depreciation">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span>سایر هزینه‌ها</span>
+                                <span class="font-semibold persian-num text-red-700" id="otherExpenses">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-red-100 rounded-lg border-t-2 border-red-600">
+                                <span class="font-bold">مجموع هزینه‌ها:</span>
+                                <span class="font-bold text-lg persian-num text-red-700" id="totalExpensesDetail">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Net Profit/Loss -->
+                <div class="mt-8 p-6 bg-gray-50 rounded-lg border-2 border-gray-200">
+                    <div class="text-center">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold text-gray-800">سود/زیان خالص:</span>
+                            <span id="netProfitLoss" class="text-2xl font-bold persian-num profit-positive">0</span>
+                        </div>
+                        <div class="mt-2 text-sm text-gray-600">
+                            نرخ سود: <span id="profitMarginDetail" class="font-semibold">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Balance Sheet Section -->
+        <div id="balance-sheetSection" class="section-content">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">ترازنامه</h2>
+                    <div class="flex space-x-3 space-x-reverse">
+                        <input type="date" id="balanceDate" class="px-3 py-2 border border-gray-300 rounded-lg">
+                        <button id="generateBalanceSheet" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            تولید ترازنامه
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Assets -->
+                    <div class="balance-sheet-section">
+                        <h3 class="text-lg font-bold text-blue-700 mb-4">
+                            <i class="fas fa-coins ml-2"></i>
+                            دارایی‌ها
+                        </h3>
+                        
+                        <!-- Current Assets -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-3">دارایی‌های جاری:</h4>
+                            <div class="space-y-2" id="currentAssets">
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>موجودی نقد</span>
+                                        <span class="font-semibold persian-num" id="cashBalance">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>موجودی بانک</span>
+                                        <span class="font-semibold persian-num" id="bankBalance">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>موجودی ارزها</span>
+                                        <span class="font-semibold persian-num" id="currencyHoldings">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>حساب‌های دریافتنی</span>
+                                        <span class="font-semibold persian-num" id="accountsReceivable">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-blue-100 rounded-lg">
+                                <div class="flex justify-between font-bold">
+                                    <span>مجموع دارایی‌های جاری:</span>
+                                    <span class="persian-num" id="totalCurrentAssets">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fixed Assets -->
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-3">دارایی‌های ثابت:</h4>
+                            <div class="space-y-2" id="fixedAssets">
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>تجهیزات اداری</span>
+                                        <span class="font-semibold persian-num" id="officeEquipment">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>تجهیزات IT</span>
+                                        <span class="font-semibold persian-num" id="itEquipment">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-blue-100 rounded-lg">
+                                <div class="flex justify-between font-bold">
+                                    <span>مجموع دارایی‌های ثابت:</span>
+                                    <span class="persian-num" id="totalFixedAssets">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Assets -->
+                        <div class="mt-6 p-4 bg-blue-200 rounded-lg border-2 border-blue-600">
+                            <div class="flex justify-between text-lg font-bold">
+                                <span>مجموع کل دارایی‌ها:</span>
+                                <span class="persian-num" id="totalAssetsBalance">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liabilities & Equity -->
+                    <div class="balance-sheet-section">
+                        <h3 class="text-lg font-bold text-red-700 mb-4">
+                            <i class="fas fa-file-invoice-dollar ml-2"></i>
+                            بدهی‌ها و حقوق صاحبان سهام
+                        </h3>
+
+                        <!-- Current Liabilities -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-3">بدهی‌های جاری:</h4>
+                            <div class="space-y-2" id="currentLiabilities">
+                                <div class="account-item bg-red-50">
+                                    <div class="flex justify-between">
+                                        <span>حساب‌های پرداختنی</span>
+                                        <span class="font-semibold persian-num" id="accountsPayable">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-red-50">
+                                    <div class="flex justify-between">
+                                        <span>مالیات پرداختنی</span>
+                                        <span class="font-semibold persian-num" id="taxesPayable">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-red-50">
+                                    <div class="flex justify-between">
+                                        <span>حقوق پرداختنی</span>
+                                        <span class="font-semibold persian-num" id="salariesPayable">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-red-100 rounded-lg">
+                                <div class="flex justify-between font-bold">
+                                    <span>مجموع بدهی‌های جاری:</span>
+                                    <span class="persian-num" id="totalCurrentLiabilities">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Long-term Liabilities -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-3">بدهی‌های بلندمدت:</h4>
+                            <div class="space-y-2" id="longTermLiabilities">
+                                <div class="account-item bg-red-50">
+                                    <div class="flex justify-between">
+                                        <span>تسهیلات بانکی</span>
+                                        <span class="font-semibold persian-num" id="bankLoans">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-red-100 rounded-lg">
+                                <div class="flex justify-between font-bold">
+                                    <span>مجموع بدهی‌های بلندمدت:</span>
+                                    <span class="persian-num" id="totalLongTermLiabilities">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Equity -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-3">حقوق صاحبان سهام:</h4>
+                            <div class="space-y-2" id="equity">
+                                <div class="account-item bg-green-50">
+                                    <div class="flex justify-between">
+                                        <span>سرمایه</span>
+                                        <span class="font-semibold persian-num" id="capital">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-green-50">
+                                    <div class="flex justify-between">
+                                        <span>سود انباشته</span>
+                                        <span class="font-semibold persian-num" id="retainedEarnings">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-green-100 rounded-lg">
+                                <div class="flex justify-between font-bold">
+                                    <span>مجموع حقوق صاحبان سهام:</span>
+                                    <span class="persian-num" id="totalEquity">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Liabilities & Equity -->
+                        <div class="p-4 bg-red-200 rounded-lg border-2 border-red-600">
+                            <div class="flex justify-between text-lg font-bold">
+                                <span>مجموع بدهی‌ها و حقوق صاحبان سهام:</span>
+                                <span class="persian-num" id="totalLiabilitiesEquity">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Balance Verification -->
+                <div class="mt-8 p-4 rounded-lg" id="balanceVerification">
+                    <div class="text-center">
+                        <div class="text-lg font-bold" id="balanceStatus">
+                            <i class="fas fa-check-circle text-green-600 ml-2"></i>
+                            ترازنامه متعادل است
+                        </div>
+                        <div class="text-sm text-gray-600 mt-2">
+                            اختلاف: <span id="balanceDifference" class="persian-num">0</span> درهم
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- General Ledger Section -->
+        <div id="general-ledgerSection" class="section-content">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">دفتر کل</h2>
+                    <div class="flex space-x-3 space-x-reverse">
+                        <select id="accountFilter" class="px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="">همه حساب‌ها</option>
+                            <option value="cash">موجودی نقد</option>
+                            <option value="bank">موجودی بانک</option>
+                            <option value="revenue">درآمدها</option>
+                            <option value="expenses">هزینه‌ها</option>
+                        </select>
+                        <input type="date" id="ledgerFromDate" class="px-3 py-2 border border-gray-300 rounded-lg">
+                        <input type="date" id="ledgerToDate" class="px-3 py-2 border border-gray-300 rounded-lg">
+                        <button id="filterLedger" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            فیلتر
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاریخ</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">شرح</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">حساب</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">بدهکار</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">بستانکار</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">مانده</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">مرجع</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerEntries" class="bg-white divide-y divide-gray-200">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Ledger Summary -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-600">مجموع بدهکار</div>
+                        <div id="totalDebit" class="text-lg font-bold text-green-700 persian-num">0</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-600">مجموع بستانکار</div>
+                        <div id="totalCredit" class="text-lg font-bold text-red-700 persian-num">0</div>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-600">مانده نهایی</div>
+                        <div id="finalBalance" class="text-lg font-bold text-blue-700 persian-num">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses Section -->
+        <div id="expensesSection" class="section-content">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">مدیریت هزینه‌ها</h2>
+                    <button id="addExpenseBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-plus ml-1"></i>
+                        هزینه جدید
+                    </button>
+                </div>
+
+                <!-- Expense Categories -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                        <div class="text-sm text-gray-600">هزینه‌های عملیاتی</div>
+                        <div id="operationalExpensesTotal" class="text-lg font-bold text-orange-700 persian-num">0</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <div class="text-sm text-gray-600">حقوق و دستمزد</div>
+                        <div id="salaryExpensesTotal" class="text-lg font-bold text-red-700 persian-num">0</div>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <div class="text-sm text-gray-600">هزینه‌های مالی</div>
+                        <div id="financialExpensesTotal" class="text-lg font-bold text-purple-700 persian-num">0</div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="text-sm text-gray-600">سایر هزینه‌ها</div>
+                        <div id="miscExpensesTotal" class="text-lg font-bold text-gray-700 persian-num">0</div>
+                    </div>
+                </div>
+
+                <!-- Expenses Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاریخ</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">شرح</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">دسته‌بندی</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">مبلغ</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Section -->
+        <div id="analysisSection" class="section-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Financial Ratios -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">نسبت‌های مالی</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                            <div>
+                                <div class="font-medium">نسبت جاری</div>
+                                <div class="text-sm text-gray-500">دارایی جاری / بدهی جاری</div>
+                            </div>
+                            <div id="currentRatio" class="text-xl font-bold text-blue-600 persian-num">0</div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                            <div>
+                                <div class="font-medium">نرخ بازگشت دارایی (ROA)</div>
+                                <div class="text-sm text-gray-500">سود خالص / کل دارایی‌ها</div>
+                            </div>
+                            <div id="roa" class="text-xl font-bold text-green-600 persian-num">0%</div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                            <div>
+                                <div class="font-medium">نرخ بازگشت سرمایه (ROE)</div>
+                                <div class="text-sm text-gray-500">سود خالص / حقوق صاحبان سهام</div>
+                            </div>
+                            <div id="roe" class="text-xl font-bold text-purple-600 persian-num">0%</div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+                            <div>
+                                <div class="font-medium">نسبت بدهی</div>
+                                <div class="text-sm text-gray-500">کل بدهی‌ها / کل دارایی‌ها</div>
+                            </div>
+                            <div id="debtRatio" class="text-xl font-bold text-orange-600 persian-num">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Trends -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">روند عملکرد</h3>
+                    <div class="chart-container">
+                        <canvas id="performanceTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Dashboard -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">شاخص‌های کلیدی عملکرد (KPI)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-600 persian-num" id="averageTransactionValue">0</div>
+                        <div class="text-sm text-gray-600">میانگین ارزش معامله</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-600 persian-num" id="customerRetentionRate">0%</div>
+                        <div class="text-sm text-gray-600">نرخ حفظ مشتری</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-purple-600 persian-num" id="operationalEfficiency">0%</div>
+                        <div class="text-sm text-gray-600">کارایی عملیاتی</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div id="expenseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">هزینه جدید</h3>
+                    <button id="closeExpenseModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="expenseForm" class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">شرح هزینه *</label>
+                            <input type="text" id="expenseDescription" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">دسته‌بندی *</label>
+                            <select id="expenseCategory" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">انتخاب کنید</option>
+                                <option value="operational">عملیاتی</option>
+                                <option value="salary">حقوق و دستمزد</option>
+                                <option value="financial">مالی</option>
+                                <option value="misc">سایر</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">مبلغ (درهم) *</label>
+                            <input type="number" id="expenseAmount" step="0.01" min="0" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">تاریخ</label>
+                            <input type="date" id="expenseDate"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end space-x-3 space-x-reverse">
+                        <button type="button" id="cancelExpense" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            لغو
+                        </button>
+                        <button type="submit" id="saveExpense" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <span id="saveExpenseText">ذخیره هزینه</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 left-4 transform -translate-x-full transition-transform duration-300 z-50">
+        <div class="bg-white rounded-lg shadow-lg border-l-4 p-4 max-w-sm">
+            <div class="flex items-center">
+                <div id="toastIcon" class="flex-shrink-0">
+                    <!-- Dynamic icon -->
+                </div>
+                <div class="mr-3">
+                    <p id="toastMessage" class="text-sm font-medium text-gray-900"></p>
+                </div>
+                <button id="closeToast" class="mr-auto text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم حسابداری - پلتفرم صرافی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Vazir', sans-serif; }
+        .section-content { display: none; }
+        .section-content.active { display: block; }
+        .persian-num { font-family: 'IRANSans', sans-serif; }
+        .spinner { width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .accounting-card { 
+            transition: all 0.3s ease; 
+            border-left: 4px solid transparent;
+        }
+        .accounting-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
+        .profit-card { border-left-color: #059669; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); }
+        .loss-card { border-left-color: #dc2626; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); }
+        .revenue-card { border-left-color: #2563eb; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
+        .expense-card { border-left-color: #d97706; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
+        
+        .profit-positive { color: #059669; }
+        .profit-negative { color: #dc2626; }
+        .chart-container { height: 400px; }
+        
+        .nav-tab {
+            padding: 12px 24px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .nav-tab:hover { background-color: #f3f4f6; }
+        .nav-tab.active { 
+            border-bottom-color: #2563eb; 
+            background-color: #eff6ff; 
+            color: #2563eb; 
+        }
+        
+        .account-item {
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+        .account-item:hover {
+            background-color: #f9fafb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .balance-sheet-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        <i class="fas fa-chart-line text-green-600 ml-2"></i>
+                        سیستم حسابداری
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="text-sm text-gray-600">
+                        <i class="fas fa-calendar ml-1"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                    <button id="exportAccountingBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-file-excel ml-1"></i>
+                        گزارش Excel
+                    </button>
+                    <button id="printReportBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-print ml-1"></i>
+                        چاپ گزارش
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Navigation Tabs -->
+        <div class="bg-white rounded-lg shadow-sm mb-8 overflow-hidden">
+            <div class="flex border-b">
+                <button class="nav-tab active" data-section="overview">
+                    <i class="fas fa-tachometer-alt ml-2"></i>
+                    نمای کلی
+                </button>
+                <button class="nav-tab" data-section="profit-loss">
+                    <i class="fas fa-chart-pie ml-2"></i>
+                    سود و زیان
+                </button>
+                <button class="nav-tab" data-section="balance-sheet">
+                    <i class="fas fa-balance-scale ml-2"></i>
+                    ترازنامه
+                </button>
+                <button class="nav-tab" data-section="general-ledger">
+                    <i class="fas fa-book ml-2"></i>
+                    دفتر کل
+                </button>
+                <button class="nav-tab" data-section="expenses">
+                    <i class="fas fa-receipt ml-2"></i>
+                    هزینه‌ها
+                </button>
+                <button class="nav-tab" data-section="analysis">
+                    <i class="fas fa-analytics ml-2"></i>
+                    تحلیل مالی
+                </button>
+            </div>
+        </div>
+
+        <!-- Overview Section -->
+        <div id="overviewSection" class="section-content active">
+            <!-- Key Financial Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="accounting-card profit-card bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">سود خالص امروز</p>
+                            <p id="todayNetProfit" class="text-2xl font-bold text-green-700 persian-num">0</p>
+                            <div class="flex items-center mt-2">
+                                <span id="profitGrowth" class="text-sm profit-positive">+12.5%</span>
+                                <span class="text-sm text-gray-500 mr-2">نسبت به دیروز</span>
+                            </div>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-trending-up text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accounting-card revenue-card bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">کل درآمد</p>
+                            <p id="totalRevenue" class="text-2xl font-bold text-blue-700 persian-num">0</p>
+                            <div class="flex items-center mt-2">
+                                <span id="revenueGrowth" class="text-sm profit-positive">+8.3%</span>
+                                <span class="text-sm text-gray-500 mr-2">ماه جاری</span>
+                            </div>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-dollar-sign text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accounting-card expense-card bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">کل هزینه‌ها</p>
+                            <p id="totalExpenses" class="text-2xl font-bold text-orange-700 persian-num">0</p>
+                            <div class="flex items-center mt-2">
+                                <span id="expenseGrowth" class="text-sm profit-negative">+5.1%</span>
+                                <span class="text-sm text-gray-500 mr-2">ماه جاری</span>
+                            </div>
+                        </div>
+                        <div class="bg-orange-100 p-3 rounded-full">
+                            <i class="fas fa-credit-card text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accounting-card bg-white rounded-lg shadow-lg p-6" style="border-left-color: #7c3aed; background: linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%);">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">نرخ سود</p>
+                            <p id="profitMargin" class="text-2xl font-bold text-purple-700 persian-num">0%</p>
+                            <div class="flex items-center mt-2">
+                                <span id="marginGrowth" class="text-sm profit-positive">+2.1%</span>
+                                <span class="text-sm text-gray-500 mr-2">بهبود</span>
+                            </div>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i class="fas fa-percentage text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Monthly Profit/Loss Chart -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">نمودار سود/زیان ماهانه</h3>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <button class="text-sm text-gray-500 hover:text-gray-700">6 ماه</button>
+                            <button class="text-sm text-blue-600 border-b border-blue-600">12 ماه</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthlyProfitChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Revenue Breakdown -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">توزیع درآمد</h3>
+                    <div class="chart-container">
+                        <canvas id="revenueBreakdownChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions & Quick Stats -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Quick Financial Stats -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">آمار سریع مالی</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">میانگین سود روزانه:</span>
+                            <span id="avgDailyProfit" class="font-semibold persian-num profit-positive">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">بیشترین سود ماه:</span>
+                            <span id="maxMonthlyProfit" class="font-semibold persian-num profit-positive">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">تعداد معاملات سودده:</span>
+                            <span id="profitableTransactions" class="font-semibold persian-num">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">نرخ موفقیت:</span>
+                            <span id="successRate" class="font-semibold persian-num profit-positive">0%</span>
+                        </div>
+                        <div class="pt-4 border-t">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">مجموع دارایی‌ها:</span>
+                                <span id="totalAssets" class="font-bold text-lg persian-num text-blue-600">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Performing Currencies -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">برترین ارزها (سود)</h3>
+                    <div class="space-y-3" id="topCurrencies">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Recent Accounting Entries -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">آخرین ثبت‌های حسابداری</h3>
+                    <div class="space-y-3" id="recentEntries">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profit & Loss Section -->
+        <div id="profit-lossSection" class="section-content">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">گزارش سود و زیان</h2>
+                    <div class="flex space-x-3 space-x-reverse">
+                        <select id="plPeriod" class="px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="today">امروز</option>
+                            <option value="week">هفته جاری</option>
+                            <option value="month" selected>ماه جاری</option>
+                            <option value="quarter">فصل جاری</option>
+                            <option value="year">سال جاری</option>
+                        </select>
+                        <button id="generatePLReport" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            تولید گزارش
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Revenue Section -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-green-700 mb-4">
+                            <i class="fas fa-plus-circle ml-2"></i>
+                            درآمدها
+                        </h3>
+                        <div class="space-y-3" id="revenueItems">
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span>سود تبدیل ارز</span>
+                                <span class="font-semibold persian-num text-green-700" id="currencyProfits">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span>کمیسیون حواله</span>
+                                <span class="font-semibold persian-num text-green-700" id="hawalaCommission">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span>کمیسیون همکاران</span>
+                                <span class="font-semibold persian-num text-green-700" id="partnerCommissions">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span>سایر درآمدها</span>
+                                <span class="font-semibold persian-num text-green-700" id="otherRevenue">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-green-100 rounded-lg border-t-2 border-green-600">
+                                <span class="font-bold">مجموع درآمدها:</span>
+                                <span class="font-bold text-lg persian-num text-green-700" id="totalRevenueDetail">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expenses Section -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-red-700 mb-4">
+                            <i class="fas fa-minus-circle ml-2"></i>
+                            هزینه‌ها
+                        </h3>
+                        <div class="space-y-3" id="expenseItems">
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span>حقوق و دستمزد</span>
+                                <span class="font-semibold persian-num text-red-700" id="salaryExpenses">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span>اجاره و امور اداری</span>
+                                <span class="font-semibold persian-num text-red-700" id="operationalExpenses">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span>هزینه‌های بانکی</span>
+                                <span class="font-semibold persian-num text-red-700" id="bankingFees">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span>استهلاک</span>
+                                <span class="font-semibold persian-num text-red-700" id="depreciation">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span>سایر هزینه‌ها</span>
+                                <span class="font-semibold persian-num text-red-700" id="otherExpenses">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-red-100 rounded-lg border-t-2 border-red-600">
+                                <span class="font-bold">مجموع هزینه‌ها:</span>
+                                <span class="font-bold text-lg persian-num text-red-700" id="totalExpensesDetail">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Net Profit/Loss -->
+                <div class="mt-8 p-6 bg-gray-50 rounded-lg border-2 border-gray-200">
+                    <div class="text-center">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold text-gray-800">سود/زیان خالص:</span>
+                            <span id="netProfitLoss" class="text-2xl font-bold persian-num profit-positive">0</span>
+                        </div>
+                        <div class="mt-2 text-sm text-gray-600">
+                            نرخ سود: <span id="profitMarginDetail" class="font-semibold">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Balance Sheet Section -->
+        <div id="balance-sheetSection" class="section-content">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">ترازنامه</h2>
+                    <div class="flex space-x-3 space-x-reverse">
+                        <input type="date" id="balanceDate" class="px-3 py-2 border border-gray-300 rounded-lg">
+                        <button id="generateBalanceSheet" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            تولید ترازنامه
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Assets -->
+                    <div class="balance-sheet-section">
+                        <h3 class="text-lg font-bold text-blue-700 mb-4">
+                            <i class="fas fa-coins ml-2"></i>
+                            دارایی‌ها
+                        </h3>
+                        
+                        <!-- Current Assets -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-3">دارایی‌های جاری:</h4>
+                            <div class="space-y-2" id="currentAssets">
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>موجودی نقد</span>
+                                        <span class="font-semibold persian-num" id="cashBalance">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>موجودی بانک</span>
+                                        <span class="font-semibold persian-num" id="bankBalance">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>موجودی ارزها</span>
+                                        <span class="font-semibold persian-num" id="currencyHoldings">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>حساب‌های دریافتنی</span>
+                                        <span class="font-semibold persian-num" id="accountsReceivable">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-blue-100 rounded-lg">
+                                <div class="flex justify-between font-bold">
+                                    <span>مجموع دارایی‌های جاری:</span>
+                                    <span class="persian-num" id="totalCurrentAssets">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fixed Assets -->
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-3">دارایی‌های ثابت:</h4>
+                            <div class="space-y-2" id="fixedAssets">
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>تجهیزات اداری</span>
+                                        <span class="font-semibold persian-num" id="officeEquipment">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-blue-50">
+                                    <div class="flex justify-between">
+                                        <span>تجهیزات IT</span>
+                                        <span class="font-semibold persian-num" id="itEquipment">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-blue-100 rounded-lg">
+                                <div class="flex justify-between font-bold">
+                                    <span>مجموع دارایی‌های ثابت:</span>
+                                    <span class="persian-num" id="totalFixedAssets">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Assets -->
+                        <div class="mt-6 p-4 bg-blue-200 rounded-lg border-2 border-blue-600">
+                            <div class="flex justify-between text-lg font-bold">
+                                <span>مجموع کل دارایی‌ها:</span>
+                                <span class="persian-num" id="totalAssetsBalance">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liabilities & Equity -->
+                    <div class="balance-sheet-section">
+                        <h3 class="text-lg font-bold text-red-700 mb-4">
+                            <i class="fas fa-file-invoice-dollar ml-2"></i>
+                            بدهی‌ها و حقوق صاحبان سهام
+                        </h3>
+
+                        <!-- Current Liabilities -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-3">بدهی‌های جاری:</h4>
+                            <div class="space-y-2" id="currentLiabilities">
+                                <div class="account-item bg-red-50">
+                                    <div class="flex justify-between">
+                                        <span>حساب‌های پرداختنی</span>
+                                        <span class="font-semibold persian-num" id="accountsPayable">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-red-50">
+                                    <div class="flex justify-between">
+                                        <span>مالیات پرداختنی</span>
+                                        <span class="font-semibold persian-num" id="taxesPayable">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-red-50">
+                                    <div class="flex justify-between">
+                                        <span>حقوق پرداختنی</span>
+                                        <span class="font-semibold persian-num" id="salariesPayable">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-red-100 rounded-lg">
+                                <div class="flex justify-between font-bold">
+                                    <span>مجموع بدهی‌های جاری:</span>
+                                    <span class="persian-num" id="totalCurrentLiabilities">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Long-term Liabilities -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-3">بدهی‌های بلندمدت:</h4>
+                            <div class="space-y-2" id="longTermLiabilities">
+                                <div class="account-item bg-red-50">
+                                    <div class="flex justify-between">
+                                        <span>تسهیلات بانکی</span>
+                                        <span class="font-semibold persian-num" id="bankLoans">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-red-100 rounded-lg">
+                                <div class="flex justify-between font-bold">
+                                    <span>مجموع بدهی‌های بلندمدت:</span>
+                                    <span class="persian-num" id="totalLongTermLiabilities">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Equity -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-3">حقوق صاحبان سهام:</h4>
+                            <div class="space-y-2" id="equity">
+                                <div class="account-item bg-green-50">
+                                    <div class="flex justify-between">
+                                        <span>سرمایه</span>
+                                        <span class="font-semibold persian-num" id="capital">0</span>
+                                    </div>
+                                </div>
+                                <div class="account-item bg-green-50">
+                                    <div class="flex justify-between">
+                                        <span>سود انباشته</span>
+                                        <span class="font-semibold persian-num" id="retainedEarnings">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-green-100 rounded-lg">
+                                <div class="flex justify-between font-bold">
+                                    <span>مجموع حقوق صاحبان سهام:</span>
+                                    <span class="persian-num" id="totalEquity">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Liabilities & Equity -->
+                        <div class="p-4 bg-red-200 rounded-lg border-2 border-red-600">
+                            <div class="flex justify-between text-lg font-bold">
+                                <span>مجموع بدهی‌ها و حقوق صاحبان سهام:</span>
+                                <span class="persian-num" id="totalLiabilitiesEquity">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Balance Verification -->
+                <div class="mt-8 p-4 rounded-lg" id="balanceVerification">
+                    <div class="text-center">
+                        <div class="text-lg font-bold" id="balanceStatus">
+                            <i class="fas fa-check-circle text-green-600 ml-2"></i>
+                            ترازنامه متعادل است
+                        </div>
+                        <div class="text-sm text-gray-600 mt-2">
+                            اختلاف: <span id="balanceDifference" class="persian-num">0</span> درهم
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- General Ledger Section -->
+        <div id="general-ledgerSection" class="section-content">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">دفتر کل</h2>
+                    <div class="flex space-x-3 space-x-reverse">
+                        <select id="accountFilter" class="px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="">همه حساب‌ها</option>
+                            <option value="cash">موجودی نقد</option>
+                            <option value="bank">موجودی بانک</option>
+                            <option value="revenue">درآمدها</option>
+                            <option value="expenses">هزینه‌ها</option>
+                        </select>
+                        <input type="date" id="ledgerFromDate" class="px-3 py-2 border border-gray-300 rounded-lg">
+                        <input type="date" id="ledgerToDate" class="px-3 py-2 border border-gray-300 rounded-lg">
+                        <button id="filterLedger" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            فیلتر
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاریخ</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">شرح</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">حساب</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">بدهکار</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">بستانکار</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">مانده</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">مرجع</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerEntries" class="bg-white divide-y divide-gray-200">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Ledger Summary -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-600">مجموع بدهکار</div>
+                        <div id="totalDebit" class="text-lg font-bold text-green-700 persian-num">0</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-600">مجموع بستانکار</div>
+                        <div id="totalCredit" class="text-lg font-bold text-red-700 persian-num">0</div>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="text-sm text-gray-600">مانده نهایی</div>
+                        <div id="finalBalance" class="text-lg font-bold text-blue-700 persian-num">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses Section -->
+        <div id="expensesSection" class="section-content">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">مدیریت هزینه‌ها</h2>
+                    <button id="addExpenseBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-plus ml-1"></i>
+                        هزینه جدید
+                    </button>
+                </div>
+
+                <!-- Expense Categories -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                        <div class="text-sm text-gray-600">هزینه‌های عملیاتی</div>
+                        <div id="operationalExpensesTotal" class="text-lg font-bold text-orange-700 persian-num">0</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <div class="text-sm text-gray-600">حقوق و دستمزد</div>
+                        <div id="salaryExpensesTotal" class="text-lg font-bold text-red-700 persian-num">0</div>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <div class="text-sm text-gray-600">هزینه‌های مالی</div>
+                        <div id="financialExpensesTotal" class="text-lg font-bold text-purple-700 persian-num">0</div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="text-sm text-gray-600">سایر هزینه‌ها</div>
+                        <div id="miscExpensesTotal" class="text-lg font-bold text-gray-700 persian-num">0</div>
+                    </div>
+                </div>
+
+                <!-- Expenses Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاریخ</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">شرح</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">دسته‌بندی</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">مبلغ</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Section -->
+        <div id="analysisSection" class="section-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Financial Ratios -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">نسبت‌های مالی</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                            <div>
+                                <div class="font-medium">نسبت جاری</div>
+                                <div class="text-sm text-gray-500">دارایی جاری / بدهی جاری</div>
+                            </div>
+                            <div id="currentRatio" class="text-xl font-bold text-blue-600 persian-num">0</div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                            <div>
+                                <div class="font-medium">نرخ بازگشت دارایی (ROA)</div>
+                                <div class="text-sm text-gray-500">سود خالص / کل دارایی‌ها</div>
+                            </div>
+                            <div id="roa" class="text-xl font-bold text-green-600 persian-num">0%</div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                            <div>
+                                <div class="font-medium">نرخ بازگشت سرمایه (ROE)</div>
+                                <div class="text-sm text-gray-500">سود خالص / حقوق صاحبان سهام</div>
+                            </div>
+                            <div id="roe" class="text-xl font-bold text-purple-600 persian-num">0%</div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+                            <div>
+                                <div class="font-medium">نسبت بدهی</div>
+                                <div class="text-sm text-gray-500">کل بدهی‌ها / کل دارایی‌ها</div>
+                            </div>
+                            <div id="debtRatio" class="text-xl font-bold text-orange-600 persian-num">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Trends -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">روند عملکرد</h3>
+                    <div class="chart-container">
+                        <canvas id="performanceTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Dashboard -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">شاخص‌های کلیدی عملکرد (KPI)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-600 persian-num" id="averageTransactionValue">0</div>
+                        <div class="text-sm text-gray-600">میانگین ارزش معامله</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-600 persian-num" id="customerRetentionRate">0%</div>
+                        <div class="text-sm text-gray-600">نرخ حفظ مشتری</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-purple-600 persian-num" id="operationalEfficiency">0%</div>
+                        <div class="text-sm text-gray-600">کارایی عملیاتی</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div id="expenseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">هزینه جدید</h3>
+                    <button id="closeExpenseModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="expenseForm" class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">شرح هزینه *</label>
+                            <input type="text" id="expenseDescription" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">دسته‌بندی *</label>
+                            <select id="expenseCategory" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">انتخاب کنید</option>
+                                <option value="operational">عملیاتی</option>
+                                <option value="salary">حقوق و دستمزد</option>
+                                <option value="financial">مالی</option>
+                                <option value="misc">سایر</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">مبلغ (درهم) *</label>
+                            <input type="number" id="expenseAmount" step="0.01" min="0" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">تاریخ</label>
+                            <input type="date" id="expenseDate"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end space-x-3 space-x-reverse">
+                        <button type="button" id="cancelExpense" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            لغو
+                        </button>
+                        <button type="submit" id="saveExpense" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <span id="saveExpenseText">ذخیره هزینه</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 left-4 transform -translate-x-full transition-transform duration-300 z-50">
+        <div class="bg-white rounded-lg shadow-lg border-l-4 p-4 max-w-sm">
+            <div class="flex items-center">
+                <div id="toastIcon" class="flex-shrink-0">
+                    <!-- Dynamic icon -->
+                </div>
+                <div class="mr-3">
+                    <p id="toastMessage" class="text-sm font-medium text-gray-900"></p>
+                </div>
+                <button id="closeToast" class="mr-auto text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/accounting.js"></script>
+    <script src="../js/language.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>

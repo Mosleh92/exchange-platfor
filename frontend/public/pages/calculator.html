@@ -1,0 +1,572 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧮 Currency Calculator - Exchange Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50">
+    
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-calculator text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Currency Calculator & Trading</h1>
+                        <p class="text-green-200 text-sm">Iran Toman • UAE Dirham • Gulf Region</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-green-500 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-circle text-xs mr-1"></i>Live Rates
+                    </span>
+                    <a href="dashboard.html" class="bg-green-700 px-4 py-2 rounded hover:bg-green-800">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Main Calculator -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+            <!-- Currency Exchange Calculator -->
+            <div class="xl:col-span-2 bg-white rounded-lg shadow-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">💱 Exchange Calculator</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="switchCurrencies()" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200">
+                            <i class="fas fa-exchange-alt"></i> Switch
+                        </button>
+                        <button onclick="resetCalculator()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Currency Exchange Interface -->
+                <div class="space-y-6">
+                    <!-- From Currency -->
+                    <div class="border-2 border-gray-200 rounded-xl p-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">From (Send)</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <select id="fromCurrency" onchange="updateExchange()" class="w-full p-4 border rounded-lg text-lg font-semibold">
+                                    <!-- Iran & Middle East -->
+                                    <optgroup label="🇮🇷 Iran & Neighbors">
+                                        <option value="IRR">IRR - Iranian Rial (ریال)</option>
+                                        <option value="IRT">IRT - Iranian Toman (تومان)</option>
+                                    </optgroup>
+                                    
+                                    <!-- Gulf Countries -->
+                                    <optgroup label="🌊 Gulf Region">
+                                        <option value="AED" selected>AED - UAE Dirham (درهم)</option>
+                                        <option value="SAR">SAR - Saudi Riyal (ریال سعودی)</option>
+                                        <option value="KWD">KWD - Kuwaiti Dinar (دینار)</option>
+                                        <option value="QAR">QAR - Qatari Riyal (ریال قطری)</option>
+                                        <option value="BHD">BHD - Bahraini Dinar (دینار بحرین)</option>
+                                        <option value="OMR">OMR - Omani Rial (ریال عمان)</option>
+                                    </optgroup>
+                                    
+                                    <!-- Major Currencies -->
+                                    <optgroup label="🌍 Major Currencies">
+                                        <option value="USD">USD - US Dollar</option>
+                                        <option value="EUR">EUR - Euro</option>
+                                        <option value="GBP">GBP - British Pound</option>
+                                        <option value="JPY">JPY - Japanese Yen</option>
+                                        <option value="CHF">CHF - Swiss Franc</option>
+                                    </optgroup>
+                                    
+                                    <!-- South Asian -->
+                                    <optgroup label="🇮🇳 South Asia">
+                                        <option value="INR">INR - Indian Rupee</option>
+                                        <option value="PKR">PKR - Pakistani Rupee</option>
+                                        <option value="BDT">BDT - Bangladeshi Taka</option>
+                                        <option value="LKR">LKR - Sri Lankan Rupee</option>
+                                    </optgroup>
+                                    
+                                    <!-- Cryptocurrencies -->
+                                    <optgroup label="₿ Cryptocurrencies">
+                                        <option value="BTC">BTC - Bitcoin</option>
+                                        <option value="ETH">ETH - Ethereum</option>
+                                        <option value="USDT">USDT - Tether</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="fromAmount" oninput="updateExchange()" 
+                                       class="w-full p-4 border rounded-lg text-right text-2xl font-bold" 
+                                       placeholder="0.00" value="100">
+                                <button onclick="setQuickAmount(100)" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-100 px-2 py-1 rounded text-xs">100</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exchange Icon -->
+                    <div class="text-center">
+                        <button onclick="switchCurrencies()" class="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-exchange-alt text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- To Currency -->
+                    <div class="border-2 border-green-200 rounded-xl p-6 bg-green-50">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">To (Receive)</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <select id="toCurrency" onchange="updateExchange()" class="w-full p-4 border rounded-lg text-lg font-semibold">
+                                    <!-- Iran & Middle East -->
+                                    <optgroup label="🇮🇷 Iran & Neighbors">
+                                        <option value="IRR">IRR - Iranian Rial (ریال)</option>
+                                        <option value="IRT" selected>IRT - Iranian Toman (تومان)</option>
+                                    </optgroup>
+                                    
+                                    <!-- Gulf Countries -->
+                                    <optgroup label="🌊 Gulf Region">
+                                        <option value="AED">AED - UAE Dirham (درهم)</option>
+                                        <option value="SAR">SAR - Saudi Riyal (ریال سعودی)</option>
+                                        <option value="KWD">KWD - Kuwaiti Dinar (دینار)</option>
+                                        <option value="QAR">QAR - Qatari Riyal (ریال قطری)</option>
+                                        <option value="BHD">BHD - Bahraini Dinar (دینار بحرین)</option>
+                                        <option value="OMR">OMR - Omani Rial (ریال عمان)</option>
+                                    </optgroup>
+                                    
+                                    <!-- Major Currencies -->
+                                    <optgroup label="🌍 Major Currencies">
+                                        <option value="USD">USD - US Dollar</option>
+                                        <option value="EUR">EUR - Euro</option>
+                                        <option value="GBP">GBP - British Pound</option>
+                                        <option value="JPY">JPY - Japanese Yen</option>
+                                        <option value="CHF">CHF - Swiss Franc</option>
+                                    </optgroup>
+                                    
+                                    <!-- South Asian -->
+                                    <optgroup label="🇮🇳 South Asia">
+                                        <option value="INR">INR - Indian Rupee</option>
+                                        <option value="PKR">PKR - Pakistani Rupee</option>
+                                        <option value="BDT">BDT - Bangladeshi Taka</option>
+                                        <option value="LKR">LKR - Sri Lankan Rupee</option>
+                                    </optgroup>
+                                    
+                                    <!-- Cryptocurrencies -->
+                                    <optgroup label="₿ Cryptocurrencies">
+                                        <option value="BTC">BTC - Bitcoin</option>
+                                        <option value="ETH">ETH - Ethereum</option>
+                                        <option value="USDT">USDT - Tether</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="toAmount" readonly 
+                                       class="w-full p-4 border rounded-lg text-right text-2xl font-bold bg-green-100" 
+                                       placeholder="0.00">
+                                <span class="absolute left-2 top-1/2 transform -translate-y-1/2 text-green-600 text-xs font-semibold">
+                                    You Get
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exchange Rate Info -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div class="text-center">
+                                <div class="text-blue-600 font-semibold">Exchange Rate</div>
+                                <div id="exchangeRate" class="text-blue-900 font-bold text-lg">1 AED = 11,245 IRT</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-blue-600 font-semibold">Service Fee</div>
+                                <div class="text-blue-900 font-bold">0.5% (Min: 5 AED)</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-blue-600 font-semibold">Final Rate</div>
+                                <div id="finalRate" class="text-blue-900 font-bold text-lg">11,189 IRT</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button onclick="processExchange('buy')" class="bg-green-600 text-white py-4 rounded-lg hover:bg-green-700 font-semibold text-lg">
+                            <i class="fas fa-shopping-cart mr-2"></i>Buy / Exchange Now
+                        </button>
+                        <button onclick="addToCustomer()" class="bg-blue-600 text-white py-4 rounded-lg hover:bg-blue-700 font-semibold text-lg">
+                            <i class="fas fa-user-plus mr-2"></i>Add to Customer Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Rates Panel -->
+            <div class="bg-white rounded-lg shadow-xl p-6">
+                <h3 class="text-xl font-bold mb-6">📊 Live Rates</h3>
+                
+                <!-- Main Pairs -->
+                <div class="space-y-4 mb-6">
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="text-center">
+                            <div class="text-red-800 font-bold text-lg">🇮🇷 Iranian Toman</div>
+                            <div class="text-red-900 text-2xl font-bold">11,245 IRT</div>
+                            <div class="text-red-600 text-sm">per 1 AED</div>
+                            <div class="text-red-700 text-xs mt-1">↗ +0.8% today</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="text-center">
+                            <div class="text-green-800 font-bold text-lg">🇦🇪 UAE Dirham</div>
+                            <div class="text-green-900 text-2xl font-bold">3.6725 AED</div>
+                            <div class="text-green-600 text-sm">per 1 USD</div>
+                            <div class="text-green-700 text-xs mt-1">→ 0.0% today</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Rates -->
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-gray-800">Gulf Region Rates:</h4>
+                    
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <span class="font-medium">🇸🇦 SAR/AED</span>
+                        <div class="text-right">
+                            <div class="font-bold">0.9793</div>
+                            <div class="text-green-600 text-xs">↗ +0.1%</div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <span class="font-medium">🇰🇼 KWD/AED</span>
+                        <div class="text-right">
+                            <div class="font-bold">12.065</div>
+                            <div class="text-red-600 text-xs">↘ -0.2%</div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <span class="font-medium">🇶🇦 QAR/AED</span>
+                        <div class="text-right">
+                            <div class="font-bold">1.0089</div>
+                            <div class="text-gray-600 text-xs">→ 0.0%</div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <span class="font-medium">🇧🇭 BHD/AED</span>
+                        <div class="text-right">
+                            <div class="font-bold">9.743</div>
+                            <div class="text-green-600 text-xs">↗ +0.3%</div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <span class="font-medium">🇴🇲 OMR/AED</span>
+                        <div class="text-right">
+                            <div class="font-bold">9.547</div>
+                            <div class="text-green-600 text-xs">↗ +0.1%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crypto Rates -->
+                <div class="mt-6 pt-6 border-t">
+                    <h4 class="font-semibold text-gray-800 mb-3">Crypto Rates:</h4>
+                    
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center p-2 bg-orange-50 rounded">
+                            <span class="font-medium">₿ BTC/USD</span>
+                            <div class="text-right">
+                                <div class="font-bold text-sm">$43,250</div>
+                                <div class="text-green-600 text-xs">↗ +2.1%</div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center p-2 bg-blue-50 rounded">
+                            <span class="font-medium">⟐ ETH/USD</span>
+                            <div class="text-right">
+                                <div class="font-bold text-sm">$2,650</div>
+                                <div class="text-green-600 text-xs">↗ +1.8%</div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center p-2 bg-green-50 rounded">
+                            <span class="font-medium">💵 USDT/USD</span>
+                            <div class="text-right">
+                                <div class="font-bold text-sm">$1.00</div>
+                                <div class="text-gray-600 text-xs">→ 0.0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Last Update -->
+                <div class="mt-6 pt-4 border-t text-center">
+                    <span class="text-gray-500 text-xs">
+                        <i class="fas fa-clock mr-1"></i>
+                        Last updated: <span id="lastUpdate">14:30 UTC</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Amount Buttons -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h3 class="text-lg font-bold mb-4">💰 Quick Amount Calculator</h3>
+            
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
+                <button onclick="setQuickAmount(100)" class="bg-blue-100 text-blue-800 py-3 rounded-lg hover:bg-blue-200 font-semibold">
+                    100 AED
+                </button>
+                <button onclick="setQuickAmount(500)" class="bg-blue-100 text-blue-800 py-3 rounded-lg hover:bg-blue-200 font-semibold">
+                    500 AED
+                </button>
+                <button onclick="setQuickAmount(1000)" class="bg-blue-100 text-blue-800 py-3 rounded-lg hover:bg-blue-200 font-semibold">
+                    1,000 AED
+                </button>
+                <button onclick="setQuickAmount(5000)" class="bg-blue-100 text-blue-800 py-3 rounded-lg hover:bg-blue-200 font-semibold">
+                    5,000 AED
+                </button>
+                <button onclick="setQuickAmount(10000)" class="bg-blue-100 text-blue-800 py-3 rounded-lg hover:bg-blue-200 font-semibold">
+                    10,000 AED
+                </button>
+                <button onclick="setQuickAmount(50000)" class="bg-blue-100 text-blue-800 py-3 rounded-lg hover:bg-blue-200 font-semibold">
+                    50,000 AED
+                </button>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-bold mb-6">📋 Recent Exchanges</h3>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">From</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">To</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rate</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 text-sm">14:25</td>
+                            <td class="px-4 py-4 text-sm font-medium">1,000 AED</td>
+                            <td class="px-4 py-4 text-sm font-medium">11,189,000 IRT</td>
+                            <td class="px-4 py-4 text-sm">11,189</td>
+                            <td class="px-4 py-4">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                                    Completed
+                                </span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 text-sm">14:20</td>
+                            <td class="px-4 py-4 text-sm font-medium">500 USD</td>
+                            <td class="px-4 py-4 text-sm font-medium">1,836 AED</td>
+                            <td class="px-4 py-4 text-sm">3.6725</td>
+                            <td class="px-4 py-4">
+                                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                    Processing
+                                </span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 text-sm">14:15</td>
+                            <td class="px-4 py-4 text-sm font-medium">2,000 SAR</td>
+                            <td class="px-4 py-4 text-sm font-medium">2,041 AED</td>
+                            <td class="px-4 py-4 text-sm">0.9793</td>
+                            <td class="px-4 py-4">
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                                    Completed
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Exchange rates (Mock data - در پروژه واقعی از API استفاده کنید)
+        const exchangeRates = {
+            // Base rates to USD
+            'USD': 1.0,
+            'AED': 3.6725,
+            'SAR': 3.75,
+            'KWD': 0.304,
+            'QAR': 3.64,
+            'BHD': 0.377,
+            'OMR': 0.385,
+            'EUR': 0.85,
+            'GBP': 0.78,
+            'JPY': 150.0,
+            'CHF': 0.89,
+            'INR': 83.15,
+            'PKR': 278.5,
+            'BDT': 110.0,
+            'LKR': 325.0,
+            'IRR': 42000.0,  // Iranian Rial
+            'IRT': 4200.0,   // Iranian Toman (1 Toman = 10 Rial)
+            'BTC': 0.000023,  // Bitcoin to USD
+            'ETH': 0.000377,  // Ethereum to USD
+            'USDT': 1.0       // Tether
+        };
+
+        // Service fee percentage
+        const serviceFee = 0.005; // 0.5%
+        const minimumFee = {
+            'AED': 5,
+            'USD': 1.5,
+            'EUR': 1.3,
+            'SAR': 5.6,
+            'IRT': 50000
+        };
+
+        function updateExchange() {
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+            const fromAmount = parseFloat(document.getElementById('fromAmount').value) || 0;
+
+            if (fromAmount <= 0) {
+                document.getElementById('toAmount').value = '';
+                document.getElementById('exchangeRate').textContent = 'Enter amount';
+                document.getElementById('finalRate').textContent = 'N/A';
+                return;
+            }
+
+            // Calculate exchange rate
+            const fromToUSD = fromAmount / exchangeRates[fromCurrency];
+            const toAmount = fromToUSD * exchangeRates[toCurrency];
+            
+            // Calculate service fee
+            const feeAmount = Math.max(
+                fromAmount * serviceFee,
+                minimumFee[fromCurrency] || 0
+            );
+            
+            const finalToAmount = toAmount * (1 - serviceFee);
+            
+            // Update display
+            document.getElementById('toAmount').value = formatNumber(finalToAmount);
+            
+            // Update exchange rate info
+            const rate = exchangeRates[toCurrency] / exchangeRates[fromCurrency];
+            document.getElementById('exchangeRate').textContent = 
+                `1 ${fromCurrency} = ${formatNumber(rate)} ${toCurrency}`;
+            
+            const finalRate = rate * (1 - serviceFee);
+            document.getElementById('finalRate').textContent = 
+                `${formatNumber(finalRate)} ${toCurrency}`;
+        }
+
+        function formatNumber(number) {
+            if (number >= 1000000) {
+                return number.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            } else if (number >= 1) {
+                return number.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            } else {
+                return number.toFixed(8);
+            }
+        }
+
+        function setQuickAmount(amount) {
+            document.getElementById('fromAmount').value = amount;
+            updateExchange();
+        }
+
+        function switchCurrencies() {
+            const fromCurrency = document.getElementById('fromCurrency');
+            const toCurrency = document.getElementById('toCurrency');
+            const fromAmount = document.getElementById('fromAmount');
+            const toAmount = document.getElementById('toAmount');
+
+            // Switch currencies
+            const tempCurrency = fromCurrency.value;
+            fromCurrency.value = toCurrency.value;
+            toCurrency.value = tempCurrency;
+
+            // Switch amounts
+            const tempAmount = fromAmount.value;
+            fromAmount.value = toAmount.value;
+            toAmount.value = tempAmount;
+
+            updateExchange();
+        }
+
+        function resetCalculator() {
+            document.getElementById('fromAmount').value = '100';
+            document.getElementById('fromCurrency').value = 'AED';
+            document.getElementById('toCurrency').value = 'IRT';
+            updateExchange();
+        }
+
+        function processExchange(type) {
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+            const fromAmount = document.getElementById('fromAmount').value;
+            const toAmount = document.getElementById('toAmount').value;
+
+            if (!fromAmount || fromAmount <= 0) {
+                alert('Please enter a valid amount!');
+                return;
+            }
+
+            const confirmation = confirm(
+                `Confirm Exchange:\n\n` +
+                `From: ${fromAmount} ${fromCurrency}\n` +
+                `To: ${toAmount} ${toCurrency}\n\n` +
+                `Proceed with exchange?`
+            );
+
+            if (confirmation) {
+                alert('Exchange processed successfully!\n\nTransaction ID: EXC' + Date.now());
+                // Here you would integrate with the actual exchange system
+            }
+        }
+
+        function addToCustomer() {
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+            const fromAmount = document.getElementById('fromAmount').value;
+            const toAmount = document.getElementById('toAmount').value;
+
+            if (!fromAmount || fromAmount <= 0) {
+                alert('Please enter a valid amount!');
+                return;
+            }
+
+            alert(
+                `Exchange order created for customer:\n\n` +
+                `From: ${fromAmount} ${fromCurrency}\n` +
+                `To: ${toAmount} ${toCurrency}\n\n` +
+                `Order will be available in customer portal.`
+            );
+        }
+
+        // Initialize calculator
+        document.addEventListener('DOMContentLoaded', function() {
+            updateExchange();
+            
+            // Update time every minute
+            setInterval(function() {
+                const now = new Date();
+                document.getElementById('lastUpdate').textContent = 
+                    now.toLocaleTimeString('en-US', { 
+                        hour12: false, 
+                        timeZone: 'UTC' 
+                    }) + ' UTC';
+            }, 60000);
+        });
+    </script>
+</body>
+</html>

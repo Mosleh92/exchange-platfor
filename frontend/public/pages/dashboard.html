@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد صرافی - پلتفرم مدیریت جامع</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Tahoma', sans-serif; }
+        .sidebar { transition: transform 0.3s ease-in-out; }
+        .sidebar.collapsed { transform: translateX(-100%); }
+        .main-content { transition: margin-right 0.3s ease-in-out; }
+        .main-content.expanded { margin-right: 0; }
+        .metric-card:hover { transform: translateY(-2px); transition: transform 0.2s ease; }
+        .quick-action:hover { transform: scale(1.05); transition: transform 0.2s ease; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .floating-icons { animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+        .spinner { width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed right-0 top-0 h-full w-64 bg-white shadow-lg z-30">
+        <div class="p-6 border-b border-gray-200 gradient-bg text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exchange-alt text-white text-xl"></i>
+                    </div>
+                    <div class="mr-3">
+                        <h2 class="font-bold text-white">پلتفرم صرافی</h2>
+                        <p class="text-xs text-white opacity-75" data-tenant-name>صرافی نمونه</p>
+                    </div>
+                </div>
+                <button id="sidebarToggle" class="text-white hover:text-gray-200 lg:hidden">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="dashboard.html" class="flex items-center p-3 rounded-lg bg-blue-50 text-blue-700 font-medium">
+                        <i class="fas fa-tachometer-alt text-lg ml-3"></i>داشبورد اصلی
+                    </a>
+                </li>
+                <li>
+                    <a href="exchange-calculator.html" class="flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-calculator text-lg ml-3"></i>ماشین حساب ارز
+                    </a>
+                </li>
+                <li>
+                    <a href="transactions.html" class="flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-exchange-alt text-lg ml-3"></i>مدیریت تراکنش‌ها
+                    </a>
+                </li>
+                <li>
+                    <a href="customers.html" class="flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-users text-lg ml-3"></i>مدیریت مشتریان
+                    </a>
+                </li>
+                <li>
+                    <a href="partners-management.html" class="flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-handshake text-lg ml-3"></i>مدیریت همکاران
+                        <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full mr-auto">جدید</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="rates.html" class="flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-chart-line text-lg ml-3"></i>مدیریت نرخ‌ها
+                    </a>
+                </li>
+                <li>
+                    <a href="hawala-transfers.html" class="flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-globe text-lg ml-3"></i>سیستم حواله
+                    </a>
+                </li>
+                <li>
+                    <a href="accounting.html" class="flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-calculator text-lg ml-3"></i>حسابداری
+                    </a>
+                </li>
+                <li>
+                    <a href="reports.html" class="flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-chart-bar text-lg ml-3"></i>گزارشات
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-cog text-lg ml-3"></i>تنظیمات
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+            <div class="flex items-center mb-3">
+                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-gray-600"></i>
+                </div>
+                <div class="mr-3">
+                    <p class="text-sm font-medium text-gray-700" data-user-name>کاربر</p>
+                    <p class="text-xs text-gray-500" data-user-role>مدیر صرافی</p>
+                </div>
+            </div>
+            <button onclick="logout()" class="w-full text-center text-red-600 hover:text-red-800 text-sm transition-colors">
+                <i class="fas fa-sign-out-alt ml-1"></i>خروج
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="main-content mr-64 transition-all duration-300">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <button id="sidebarToggleMain" class="text-gray-500 hover:text-gray-700 lg:hidden ml-4">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h1 class="text-2xl font-bold text-gray-900">
+                            <i class="fas fa-tachometer-alt text-blue-600 ml-2"></i>داشبورد صرافی
+                        </h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- نوتیفیکیشن -->
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-700 transition-colors" id="notificationBtn">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="absolute -top-2 -left-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                            </button>
+                        </div>
+                        
+                        <!-- نرخ زنده -->
+                        <div class="hidden md:flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-lg">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-sm text-green-700 font-medium">نرخ زنده</span>
+                        </div>
+                        
+                        <!-- تاریخ و ساعت -->
+                        <div class="text-sm text-gray-600">
+                            <div id="currentDateTime">در حال بارگذاری...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Content -->
+        <main class="p-6">
+            <!-- پیام خوش‌آمدگویی -->
+            <div class="bg-white rounded-lg shadow p-6 mb-8 fade-in">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                            خوش آمدید، <span data-user-name class="text-blue-600">مدیر صرافی</span>! 👋
+                        </h2>
+                        <p class="text-gray-600">
+                            نقش: <span data-user-role class="font-semibold text-blue-600">مدیر صرافی</span>
+                            <span class="mx-2">•</span>
+                            آخرین ورود: امروز ساعت ۰۹:۲۴
+                        </p>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-sm text-gray-600">وضعیت سیستم</div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span class="text-green-600 font-semibold">همه سیستم‌ها فعال</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- آمار کلیدی -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- تراکنش‌های امروز -->
+                <div class="metric-card bg-white rounded-lg shadow p-6 border-l-4 border-green-500 fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">تراکنش‌های امروز</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="todayTransactions">248</h3>
+                            <p class="text-green-600 text-sm">↗ +12% نسبت به دیروز</p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-chart-line text-green-600 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- حجم معاملات -->
+                <div class="metric-card bg-white rounded-lg shadow p-6 border-l-4 border-blue-500 fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">حجم کل معاملات</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="totalVolume">۲.۴ میلیون درهم</h3>
+                            <p class="text-blue-600 text-sm">این ماه</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-dollar-sign text-blue-600 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- مشتریان فعال -->
+                <div class="metric-card bg-white rounded-lg shadow p-6 border-l-4 border-purple-500 fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">مشتریان فعال</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="activeCustomers">۱,۸۴۷</h3>
+                            <p class="text-purple-600 text-sm">این ماه: +۱۲۳</p>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i class="fas fa-users text-purple-600 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- سود خالص -->
+                <div class="metric-card bg-white rounded-lg shadow p-6 border-l-4 border-orange-500 fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">سود خالص</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="netProfit">۸۲,۳۴۰ درهم</h3>
+                            <p class="text-orange-600 text-sm">↗ +8.3% این ماه</p>
+                        </div>
+                        <div class="bg-orange-100 p-3 rounded-full">
+                            <i class="fas fa-chart-pie text-orange-600 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اقدامات سریع -->
+            <div class="bg-white rounded-lg shadow p-6 mb-8 fade-in">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-bolt text-yellow-500 ml-2"></i>اقدامات سریع
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <button class="quick-action flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all" onclick="openCalculator()">
+                        <i class="fas fa-calculator text-2xl text-blue-600 mb-2"></i>
+                        <span class="text-sm font-medium text-blue-800">ماشین حساب</span>
+                    </button>
+                    
+                    <button class="quick-action flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all" onclick="newTransaction()">
+                        <i class="fas fa-plus-circle text-2xl text-green-600 mb-2"></i>
+                        <span class="text-sm font-medium text-green-800">تراکنش جدید</span>
+                    </button>
+                    
+                    <button class="quick-action flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all" onclick="addCustomer()">
+                        <i class="fas fa-user-plus text-2xl text-purple-600 mb-2"></i>
+                        <span class="text-sm font-medium text-purple-800">مشتری جدید</span>
+                    </button>
+                    
+                    <button class="quick-action flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all" onclick="viewReports()">
+                        <i class="fas fa-chart-bar text-2xl text-orange-600 mb-2"></i>
+                        <span class="text-sm font-medium text-orange-800">گزارشات</span>
+                    </button>
+                    
+                    <button class="quick-action flex flex-col items-center p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-all" onclick="manageRates()">
+                        <i class="fas fa-chart-line text-2xl text-red-600 mb-2"></i>
+                        <span class="text-sm font-medium text-red-800">نرخ‌ها</span>
+                    </button>
+                    
+                    <button class="quick-action flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all" onclick="openSettings()">
+                        <i class="fas fa-cog text-2xl text-gray-600 mb-2"></i>
+                        <span class="text-sm font-medium text-gray-800">تنظیمات</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- نرخ‌های زنده و چارت -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- نرخ‌های زنده -->
+                <div class="bg-white rounded-lg shadow p-6 fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-chart-line text-green-500 ml-2"></i>نرخ‌های زنده
+                        </h3>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse ml-2"></div>
+                            آپدیت شده ۲ دقیقه پیش
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4" id="liveRates">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <span class="text-lg font-bold text-gray-800">USD/AED</span>
+                                <span class="text-sm text-gray-600 mr-2">دلار آمریکا</span>
+                            </div>
+                            <div class="text-left">
+                                <span class="text-lg font-bold text-gray-800">3.6725</span>
+                                <span class="text-sm text-green-600 mr-2">+0.12%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <span class="text-lg font-bold text-gray-800">EUR/AED</span>
+                                <span class="text-sm text-gray-600 mr-2">یورو</span>
+                            </div>
+                            <div class="text-left">
+                                <span class="text-lg font-bold text-gray-800">3.9650</span>
+                                <span class="text-sm text-red-600 mr-2">-0.08%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <span class="text-lg font-bold text-gray-800">IRR/AED</span>
+                                <span class="text-sm text-gray-600 mr-2">ریال ایران</span>
+                            </div>
+                            <div class="text-left">
+                                <span class="text-lg font-bold text-gray-800">0.0000873</span>
+                                <span class="text-sm text-green-600 mr-2">+0.05%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium" onclick="window.location.href='rates.html'">
+                        مشاهده همه نرخ‌ها <i class="fas fa-arrow-left mr-1"></i>
+                    </button>
+                </div>
+
+                <!-- چارت فروش -->
+                <div class="bg-white rounded-lg shadow p-6 fade-in">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-chart-area text-blue-500 ml-2"></i>نمودار فروش (۷ روز گذشته)
+                    </h3>
+                    <canvas id="salesChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- تراکنش‌های اخیر -->
+            <div class="bg-white rounded-lg shadow fade-in">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-history text-gray-500 ml-2"></i>تراکنش‌های اخیر
+                        </h3>
+                        <button onclick="window.location.href='transactions.html'" class="text-blue-600 hover:text-blue-800 font-medium">
+                            مشاهده همه <i class="fas fa-arrow-left mr-1"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">شناسه</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">مشتری</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">نوع معامله</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">مبلغ</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">زمان</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200" id="recentTransactions">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#TXN001</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">احمد رضایی</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">USD → AED</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">۱,۰۰۰ دلار</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        تکمیل شده
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">۱۰ دقیقه پیش</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#TXN002</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">فاطمه احمدی</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">EUR → AED</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">۵۰۰ یورو</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        در حال پردازش
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">۱۵ دقیقه پیش</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal نوتیفیکیشن -->
+    <div id="notificationModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">اعلان‌ها</h3>
+                    <button id="closeNotificationModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-3">
+                    <div class="p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-800">تراکنش جدید: ۱,۰۰۰ دلار</p>
+                        <p class="text-xs text-blue-600">۵ دقیقه پیش</p>
+                    </div>
+                    <div class="p-3 bg-green-50 rounded-lg">
+                        <p class="text-sm text-green-800">مشتری جدید ثبت‌نام کرد</p>
+                        <p class="text-xs text-green-600">۱۰ دقیقه پیش</p>
+                    </div>
+                    <div class="p-3 bg-yellow-50 rounded-lg">
+                        <p class="text-sm text-yellow-800">نرخ EUR بروزرسانی شد</p>
+                        <p class="text-xs text-yellow-600">۱۵ دقیقه پیش</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/auth.js"></script>
+    <script>
+        // Dashboard functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            setupEventListeners();
+            loadLiveRates();
+            createSalesChart();
+        });
+
+        function initializeDashboard() {
+            // بررسی احراز هویت
+            if (!authSystem.isLoggedIn()) {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            // بروزرسانی اطلاعات کاربر
+            authSystem.updateUserInterface();
+        }
+
+        function setupEventListeners() {
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+            document.getElementById('sidebarToggleMain').addEventListener('click', toggleSidebar);
+            
+            // Notification modal
+            document.getElementById('notificationBtn').addEventListener('click', openNotificationModal);
+            document.getElementById('closeNotificationModal').addEventListener('click', closeNotificationModal);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            } else {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            }
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            
+            document.getElementById('currentDateTime').textContent = 
+                now.toLocaleDateString('fa-IR', options);
+        }
+
+        function openNotificationModal() {
+            document.getElementById('notificationModal').classList.remove('hidden');
+        }
+
+        function closeNotificationModal() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+
+        async function loadLiveRates() {
+            try {
+                // شبیه‌سازی بارگذاری نرخ‌های زنده
+                console.log('Loading live rates...');
+                // در اینجا API واقعی فراخوانی می‌شود
+            } catch (error) {
+                console.error('Error loading rates:', error);
+            }
+        }
+
+        function createSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'],
+                    datasets: [{
+                        label: 'فروش (هزار درهم)',
+                        data: [120, 190, 300, 500, 200, 300, 450],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Quick action functions
+        function openCalculator() {
+            window.location.href = 'exchange-calculator.html';
+        }
+
+        function newTransaction() {
+            window.location.href = 'transactions.html?action=new';
+        }
+
+        function addCustomer() {
+            window.location.href = 'customers.html?action=add';
+        }
+
+        function viewReports() {
+            window.location.href = 'reports.html';
+        }
+
+        function manageRates() {
+            window.location.href = 'rates.html';
+        }
+
+        function openSettings() {
+            window.location.href = 'settings.html';
+        }
+    </script>
+</body>
+</html>

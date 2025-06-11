@@ -1,0 +1,1091 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏦 Exchanger Management - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-red-600 to-pink-600 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-building text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Exchanger Management</h1>
+                        <p class="text-red-200 text-sm">Multi-Tenant Exchanger System</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="bg-red-700 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-users text-xs mr-1"></i><span id="totalExchangers">2,847 Active Exchangers</span>
+                    </div>
+                    <a href="dashboard.html" class="bg-red-700 px-4 py-2 rounded hover:bg-red-800">
+                        <i class="fas fa-arrow-left"></i> Dashboard
+                    </a>
+                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Exchanger Overview Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-green-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Active Exchangers</p>
+                        <h3 class="text-2xl font-bold text-gray-800">2,847</h3>
+                        <p class="text-green-600 text-sm">↗ +47 this month</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-store text-green-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Premium Accounts</p>
+                        <h3 class="text-2xl font-bold text-gray-800">1,284</h3>
+                        <p class="text-blue-600 text-sm">$5000/year subscribers</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-crown text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-purple-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Monthly Revenue</p>
+                        <h3 class="text-2xl font-bold text-gray-800">$1.2M</h3>
+                        <p class="text-purple-600 text-sm">AED 4.4M equivalent</p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <i class="fas fa-chart-line text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-orange-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Countries</p>
+                        <h3 class="text-2xl font-bold text-gray-800">47</h3>
+                        <p class="text-orange-600 text-sm">Global presence</p>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-full">
+                        <i class="fas fa-globe text-orange-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Interface -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+            
+            <!-- Create New Exchanger -->
+            <div class="xl:col-span-2 bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">🏪 Create New Exchanger</h2>
+                    <button onclick="resetExchangerForm()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-refresh"></i> Reset Form
+                    </button>
+                </div>
+                
+                <form id="exchangerForm" class="space-y-6">
+                    <!-- Business Information -->
+                    <div class="border rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-4">🏢 Business Information</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Business Name *</label>
+                                <input type="text" id="businessName" placeholder="Dubai Gold Exchange LLC" class="w-full p-3 border rounded-lg" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Trade License *</label>
+                                <input type="text" id="tradeLicense" placeholder="DED License Number" class="w-full p-3 border rounded-lg" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Country *</label>
+                                <select id="businessCountry" class="w-full p-3 border rounded-lg" required onchange="generateExchangerCredentials()">
+                                    <option value="">Select Country</option>
+                                    <option value="AE">🇦🇪 United Arab Emirates</option>
+                                    <option value="SA">🇸🇦 Saudi Arabia</option>
+                                    <option value="IR">🇮🇷 Iran</option>
+                                    <option value="IN">🇮🇳 India</option>
+                                    <option value="PK">🇵🇰 Pakistan</option>
+                                    <option value="BD">🇧🇩 Bangladesh</option>
+                                    <option value="EG">🇪🇬 Egypt</option>
+                                    <option value="LB">🇱🇧 Lebanon</option>
+                                    <option value="JO">🇯🇴 Jordan</option>
+                                    <option value="QA">🇶🇦 Qatar</option>
+                                    <option value="KW">🇰🇼 Kuwait</option>
+                                    <option value="BH">🇧🇭 Bahrain</option>
+                                    <option value="OM">🇴🇲 Oman</option>
+                                    <option value="TR">🇹🇷 Turkey</option>
+                                    <option value="AF">🇦🇫 Afghanistan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">City/Emirate *</label>
+                                <input type="text" id="businessCity" placeholder="Dubai, Riyadh, Tehran..." class="w-full p-3 border rounded-lg" required onchange="generateExchangerCredentials()">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                                <input type="tel" id="businessPhone" placeholder="+971 4 123 4567" class="w-full p-3 border rounded-lg" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                                <input type="email" id="businessEmail" placeholder="info@exchange.com" class="w-full p-3 border rounded-lg" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Business Address *</label>
+                            <textarea id="businessAddress" rows="3" placeholder="Complete business address with landmarks" class="w-full p-3 border rounded-lg" required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Admin Account Settings -->
+                    <div class="border rounded-lg p-4 bg-blue-50">
+                        <h4 class="font-semibold text-gray-800 mb-4">👤 Admin Account Credentials</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Admin Username *</label>
+                                <div class="relative">
+                                    <input type="text" id="adminUsername" placeholder="Auto-generated" class="w-full p-3 border rounded-lg bg-white" required readonly>
+                                    <button type="button" onclick="generateExchangerCredentials()" class="absolute right-3 top-3 text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-blue-600 mt-1">Format: [country][city][number] - Auto-generated</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Admin Password *</label>
+                                <div class="relative">
+                                    <input type="password" id="adminPassword" placeholder="Auto-generated secure password" class="w-full p-3 border rounded-lg bg-white" required readonly>
+                                    <button type="button" onclick="togglePasswordVisibility('adminPassword')" class="absolute right-10 top-3 text-gray-500">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button type="button" onclick="generateSecurePassword()" class="absolute right-3 top-3 text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-key"></i>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-blue-600 mt-1">16-character secure password with symbols</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Credential Preview -->
+                        <div class="mt-4 p-4 bg-white rounded-lg border border-blue-200">
+                            <h5 class="font-medium text-gray-700 mb-3">🔐 Login Credentials Preview:</h5>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <strong>Login URL:</strong><br>
+                                    <code class="bg-gray-100 p-1 rounded">https://exchange-platform.com/login</code>
+                                </div>
+                                <div>
+                                    <strong>Account Type:</strong><br>
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">Exchanger Admin</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subscription Plan -->
+                    <div class="border rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-4">💳 Subscription Plan</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="subscriptionPlan" value="trial" class="sr-only" checked>
+                                <div id="trialPlan" class="border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
+                                    <i class="fas fa-clock text-2xl text-gray-600 mb-2"></i>
+                                    <div class="font-semibold">Free Trial</div>
+                                    <div class="text-2xl font-bold text-gray-800">30 Days</div>
+                                    <div class="text-sm text-gray-600">Limited features</div>
+                                </div>
+                            </label>
+                            
+                            <label class="cursor-pointer">
+                                <input type="radio" name="subscriptionPlan" value="standard" class="sr-only">
+                                <div id="standardPlan" class="border-2 border-blue-200 bg-blue-50 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
+                                    <i class="fas fa-star text-2xl text-blue-600 mb-2"></i>
+                                    <div class="font-semibold text-blue-800">Standard</div>
+                                    <div class="text-2xl font-bold text-blue-800">$5,000 AED</div>
+                                    <div class="text-sm text-blue-600">Per year</div>
+                                </div>
+                            </label>
+                            
+                            <label class="cursor-pointer">
+                                <input type="radio" name="subscriptionPlan" value="premium" class="sr-only">
+                                <div id="premiumPlan" class="border-2 border-purple-200 rounded-lg p-4 text-center hover:border-purple-500 transition-colors">
+                                    <i class="fas fa-crown text-2xl text-purple-600 mb-2"></i>
+                                    <div class="font-semibold text-purple-800">Premium</div>
+                                    <div class="text-2xl font-bold text-purple-800">$8,000 AED</div>
+                                    <div class="text-sm text-purple-600">Per year + Features</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Features & Permissions -->
+                    <div class="border rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-4">⚙️ Features & Permissions</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h5 class="font-medium text-gray-700 mb-3">Core Features:</h5>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2" checked disabled> 
+                                        <span class="text-sm">Currency Exchange</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2" checked disabled> 
+                                        <span class="text-sm">Customer Management</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2" checked disabled> 
+                                        <span class="text-sm">Transaction Reports</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="hawalaFeature" class="mr-2" checked> 
+                                        <span class="text-sm">Hawala Transfers</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="font-medium text-gray-700 mb-3">Advanced Features:</h5>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="p2pFeature" class="mr-2"> 
+                                        <span class="text-sm">P2P Marketplace</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="cryptoFeature" class="mr-2"> 
+                                        <span class="text-sm">Cryptocurrency Trading</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="apiFeature" class="mr-2"> 
+                                        <span class="text-sm">API Access</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="multibranchFeature" class="mr-2"> 
+                                        <span class="text-sm">Multi-Branch Support</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Transaction Limits -->
+                        <div class="mt-4">
+                            <h5 class="font-medium text-gray-700 mb-3">Transaction Limits:</h5>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs text-gray-600 mb-1">Daily Limit (USD)</label>
+                                    <input type="number" id="dailyTxLimit" placeholder="100000" class="w-full p-2 border rounded">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-600 mb-1">Monthly Limit (USD)</label>
+                                    <input type="number" id="monthlyTxLimit" placeholder="1000000" class="w-full p-2 border rounded">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-600 mb-1">Max Customers</label>
+                                    <input type="number" id="maxCustomers" placeholder="10000" class="w-full p-2 border rounded">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documentation -->
+                    <div class="border rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-4">📁 Business Documentation</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Trade License</label>
+                                <input type="file" id="tradeLicenseFile" accept="image/*,application/pdf" class="w-full p-3 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Business Registration</label>
+                                <input type="file" id="businessRegFile" accept="image/*,application/pdf" class="w-full p-3 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Owner ID/Passport</label>
+                                <input type="file" id="ownerIdFile" accept="image/*,application/pdf" class="w-full p-3 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Bank Certificate</label>
+                                <input type="file" id="bankCertFile" accept="image/*,application/pdf" class="w-full p-3 border rounded-lg">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-4">
+                        <button type="submit" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-semibold">
+                            <i class="fas fa-save mr-2"></i>Create Exchanger Account
+                        </button>
+                        <button type="button" onclick="createAndSendCredentials()" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                            <i class="fas fa-paper-plane mr-2"></i>Create & Send Credentials
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Quick Actions & Search -->
+            <div class="space-y-6">
+                <!-- Search Exchanger -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold mb-4">🔍 Find Exchanger</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <input type="text" id="searchExchanger" placeholder="Business name, license, email..." class="w-full p-3 border rounded-lg">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="searchExchangers()" class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                                <i class="fas fa-search mr-1"></i>Search
+                            </button>
+                            <button onclick="clearExchangerSearch()" class="bg-gray-400 text-white py-2 rounded hover:bg-gray-500">
+                                <i class="fas fa-times mr-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Exchangers -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold mb-4">🆕 Recent Exchangers</h3>
+                    
+                    <div class="space-y-3" id="recentExchangers">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- System Stats -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold mb-4">📊 System Stats</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Today's New:</span>
+                            <span class="font-semibold text-green-600">+12</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Pending Approval:</span>
+                            <span class="font-semibold text-orange-600">23</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Active Today:</span>
+                            <span class="font-semibold text-blue-600">2,247</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Premium:</span>
+                            <span class="font-semibold text-purple-600">1,284</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Admin Actions -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold mb-4">⚡ Admin Actions</h3>
+                    
+                    <div class="space-y-3">
+                        <button onclick="bulkCredentialReset()" class="w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700">
+                            <i class="fas fa-key mr-2"></i>Reset Passwords
+                        </button>
+                        
+                        <button onclick="sendSystemUpdate()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                            <i class="fas fa-bell mr-2"></i>System Update
+                        </button>
+                        
+                        <button onclick="exportExchangerList()" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700">
+                            <i class="fas fa-file-export mr-2"></i>Export List
+                        </button>
+                        
+                        <button onclick="renewSubscriptions()" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+                            <i class="fas fa-sync mr-2"></i>Renew Subscriptions
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exchangers List Table -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">🏪 Exchangers Database</h2>
+                <div class="flex space-x-4">
+                    <select id="statusFilter" class="p-2 border rounded">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="trial">Trial</option>
+                        <option value="suspended">Suspended</option>
+                        <option value="pending">Pending Approval</option>
+                    </select>
+                    <select id="countryFilter" class="p-2 border rounded">
+                        <option value="all">All Countries</option>
+                        <option value="AE">🇦🇪 UAE</option>
+                        <option value="SA">🇸🇦 Saudi Arabia</option>
+                        <option value="IR">🇮🇷 Iran</option>
+                        <option value="IN">🇮🇳 India</option>
+                        <option value="PK">🇵🇰 Pakistan</option>
+                    </select>
+                    <button onclick="refreshExchangerList()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Business</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subscription</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Login</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="exchangersTable">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credentials Modal -->
+    <div id="credentialsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">🔐 Exchanger Login Credentials</h2>
+                        <button onclick="closeCredentialsModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="credentialsContent" class="space-y-6">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    
+                    <div class="mt-6 flex space-x-4">
+                        <button onclick="sendCredentialsEmail()" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-envelope mr-2"></i>Send via Email
+                        </button>
+                        <button onclick="sendCredentialsSMS()" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-sms mr-2"></i>Send via SMS
+                        </button>
+                        <button onclick="printCredentials()" class="bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700">
+                            <i class="fas fa-print"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/language.js"></script>
+    <script>
+        // Exchangers data
+        let exchangers = [];
+        let currentExchangerCredentials = null;
+
+        // Country codes for username generation
+        const countryCodes = {
+            'AE': 'ae', 'SA': 'sa', 'IR': 'ir', 'IN': 'in', 'PK': 'pk',
+            'BD': 'bd', 'EG': 'eg', 'LB': 'lb', 'JO': 'jo', 'QA': 'qa',
+            'KW': 'kw', 'BH': 'bh', 'OM': 'om', 'TR': 'tr', 'AF': 'af'
+        };
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadExchangers();
+            loadRecentExchangers();
+            generateExchangerCredentials();
+            
+            // Set up subscription plan selection
+            setupSubscriptionPlans();
+            
+            // Form submission
+            document.getElementById('exchangerForm').addEventListener('submit', handleExchangerSubmit);
+        });
+
+        // Generate exchanger credentials based on business info
+        function generateExchangerCredentials() {
+            const country = document.getElementById('businessCountry').value;
+            const city = document.getElementById('businessCity').value;
+            const businessName = document.getElementById('businessName').value;
+            
+            if (country && city) {
+                // Generate username: [country][city][random number]
+                const countryCode = countryCodes[country] || 'xx';
+                const cityCode = city.toLowerCase().replace(/[^a-z]/g, '').substring(0, 3);
+                const randomNum = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
+                const username = `${countryCode}${cityCode}${randomNum}`;
+                
+                document.getElementById('adminUsername').value = username;
+                
+                // Auto-generate secure password
+                generateSecurePassword();
+            }
+        }
+
+        // Generate secure password
+        function generateSecurePassword() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+            let password = '';
+            
+            // Ensure at least one of each type
+            password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)]; // Uppercase
+            password += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]; // Lowercase
+            password += '0123456789'[Math.floor(Math.random() * 10)]; // Number
+            password += '!@#$%^&*'[Math.floor(Math.random() * 8)]; // Symbol
+            
+            // Fill remaining characters
+            for (let i = 4; i < 16; i++) {
+                password += chars[Math.floor(Math.random() * chars.length)];
+            }
+            
+            // Shuffle the password
+            password = password.split('').sort(() => Math.random() - 0.5).join('');
+            
+            document.getElementById('adminPassword').value = password;
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = field.nextElementSibling.querySelector('i');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                field.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // Setup subscription plan selection
+        function setupSubscriptionPlans() {
+            const plans = document.querySelectorAll('input[name="subscriptionPlan"]');
+            plans.forEach(plan => {
+                plan.addEventListener('change', function() {
+                    // Reset all plan styles
+                    document.getElementById('trialPlan').className = 'border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 transition-colors';
+                    document.getElementById('standardPlan').className = 'border-2 border-blue-200 bg-blue-50 rounded-lg p-4 text-center hover:border-blue-500 transition-colors';
+                    document.getElementById('premiumPlan').className = 'border-2 border-purple-200 rounded-lg p-4 text-center hover:border-purple-500 transition-colors';
+                    
+                    // Highlight selected plan
+                    if (this.value === 'trial') {
+                        document.getElementById('trialPlan').className = 'border-2 border-gray-500 bg-gray-50 rounded-lg p-4 text-center transition-colors';
+                    } else if (this.value === 'standard') {
+                        document.getElementById('standardPlan').className = 'border-2 border-blue-500 bg-blue-100 rounded-lg p-4 text-center transition-colors';
+                    } else if (this.value === 'premium') {
+                        document.getElementById('premiumPlan').className = 'border-2 border-purple-500 bg-purple-50 rounded-lg p-4 text-center transition-colors';
+                    }
+                    
+                    // Update features based on plan
+                    updateFeaturesByPlan(this.value);
+                });
+            });
+        }
+
+        // Update features based on selected plan
+        function updateFeaturesByPlan(plan) {
+            const features = {
+                trial: {
+                    p2p: false,
+                    crypto: false,
+                    api: false,
+                    multibranch: false,
+                    dailyLimit: 10000,
+                    monthlyLimit: 100000,
+                    maxCustomers: 100
+                },
+                standard: {
+                    p2p: true,
+                    crypto: true,
+                    api: false,
+                    multibranch: true,
+                    dailyLimit: 100000,
+                    monthlyLimit: 1000000,
+                    maxCustomers: 1000
+                },
+                premium: {
+                    p2p: true,
+                    crypto: true,
+                    api: true,
+                    multibranch: true,
+                    dailyLimit: 500000,
+                    monthlyLimit: 5000000,
+                    maxCustomers: 10000
+                }
+            };
+            
+            const selectedFeatures = features[plan];
+            
+            document.getElementById('p2pFeature').checked = selectedFeatures.p2p;
+            document.getElementById('cryptoFeature').checked = selectedFeatures.crypto;
+            document.getElementById('apiFeature').checked = selectedFeatures.api;
+            document.getElementById('multibranchFeature').checked = selectedFeatures.multibranch;
+            
+            document.getElementById('dailyTxLimit').value = selectedFeatures.dailyLimit;
+            document.getElementById('monthlyTxLimit').value = selectedFeatures.monthlyLimit;
+            document.getElementById('maxCustomers').value = selectedFeatures.maxCustomers;
+        }
+
+        // Handle form submission
+        function handleExchangerSubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            
+            // Collect all form data
+            const businessName = document.getElementById('businessName').value;
+            const tradeLicense = document.getElementById('tradeLicense').value;
+            const country = document.getElementById('businessCountry').value;
+            const city = document.getElementById('businessCity').value;
+            const phone = document.getElementById('businessPhone').value;
+            const email = document.getElementById('businessEmail').value;
+            const address = document.getElementById('businessAddress').value;
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            // Validate required fields
+            if (!businessName || !tradeLicense || !country || !city || !phone || !email || !address || !username || !password) {
+                showNotification('Please fill all required fields', 'error');
+                return;
+            }
+            
+            // Create exchanger object
+            const exchanger = {
+                id: Date.now(),
+                businessName,
+                tradeLicense,
+                country,
+                city,
+                phone,
+                email,
+                address,
+                credentials: {
+                    username,
+                    password,
+                    loginUrl: 'https://exchange-platform.com/login'
+                },
+                subscription: document.querySelector('input[name="subscriptionPlan"]:checked').value,
+                status: 'active',
+                created: new Date().toISOString(),
+                lastLogin: null,
+                features: {
+                    hawala: document.getElementById('hawalaFeature').checked,
+                    p2p: document.getElementById('p2pFeature').checked,
+                    crypto: document.getElementById('cryptoFeature').checked,
+                    api: document.getElementById('apiFeature').checked,
+                    multibranch: document.getElementById('multibranchFeature').checked
+                },
+                limits: {
+                    daily: document.getElementById('dailyTxLimit').value,
+                    monthly: document.getElementById('monthlyTxLimit').value,
+                    maxCustomers: document.getElementById('maxCustomers').value
+                }
+            };
+            
+            // Add to exchangers array (in real app, send to server)
+            exchangers.push(exchanger);
+            
+            // Store credentials for modal
+            currentExchangerCredentials = exchanger;
+            
+            // Show success message
+            showNotification('Exchanger account created successfully!', 'success');
+            
+            // Show credentials modal
+            showCredentialsModal(exchanger);
+            
+            // Reset form
+            resetExchangerForm();
+            
+            // Refresh table
+            refreshExchangerList();
+        }
+
+        // Show credentials modal
+        function showCredentialsModal(exchanger) {
+            const modal = document.getElementById('credentialsModal');
+            const content = document.getElementById('credentialsContent');
+            
+            content.innerHTML = `
+                <div class="bg-blue-50 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-blue-800 mb-4">🏪 ${exchanger.businessName}</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg p-4 border border-blue-200">
+                            <h4 class="font-semibold text-gray-800 mb-3">🔐 Login Credentials</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Username:</label>
+                                    <div class="flex items-center space-x-2">
+                                        <code class="bg-gray-100 px-3 py-2 rounded font-mono text-lg">${exchanger.credentials.username}</code>
+                                        <button onclick="copyToClipboard('${exchanger.credentials.username}')" class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Password:</label>
+                                    <div class="flex items-center space-x-2">
+                                        <code class="bg-gray-100 px-3 py-2 rounded font-mono text-lg">${exchanger.credentials.password}</code>
+                                        <button onclick="copyToClipboard('${exchanger.credentials.password}')" class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Login URL:</label>
+                                    <div class="flex items-center space-x-2">
+                                        <code class="bg-gray-100 px-3 py-2 rounded text-sm">${exchanger.credentials.loginUrl}</code>
+                                        <button onclick="copyToClipboard('${exchanger.credentials.loginUrl}')" class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg p-4 border border-blue-200">
+                            <h4 class="font-semibold text-gray-800 mb-3">📋 Account Details</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Business:</span>
+                                    <span class="font-medium">${exchanger.businessName}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Location:</span>
+                                    <span class="font-medium">${exchanger.city}, ${exchanger.country}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Plan:</span>
+                                    <span class="font-medium capitalize">${exchanger.subscription}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Status:</span>
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
+                            <div>
+                                <h5 class="font-semibold text-yellow-800">Important Instructions:</h5>
+                                <ul class="mt-2 text-sm text-yellow-700 space-y-1">
+                                    <li>• Send these credentials securely to the exchanger</li>
+                                    <li>• Exchanger should change password on first login</li>
+                                    <li>• Keep a backup copy for support purposes</li>
+                                    <li>• Monitor account activation within 7 days</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        // Close credentials modal
+        function closeCredentialsModal() {
+            document.getElementById('credentialsModal').classList.add('hidden');
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Copied to clipboard!', 'success');
+            });
+        }
+
+        // Send credentials via email
+        function sendCredentialsEmail() {
+            if (!currentExchangerCredentials) return;
+            
+            // In real app, make API call to send email
+            showNotification('Credentials sent via email successfully!', 'success');
+            closeCredentialsModal();
+        }
+
+        // Send credentials via SMS
+        function sendCredentialsSMS() {
+            if (!currentExchangerCredentials) return;
+            
+            // In real app, make API call to send SMS
+            showNotification('Credentials sent via SMS successfully!', 'success');
+            closeCredentialsModal();
+        }
+
+        // Print credentials
+        function printCredentials() {
+            window.print();
+        }
+
+        // Create and send credentials directly
+        function createAndSendCredentials() {
+            // First create the account
+            handleExchangerSubmit(new Event('submit'));
+            
+            // Then automatically send credentials
+            setTimeout(() => {
+                if (currentExchangerCredentials) {
+                    sendCredentialsEmail();
+                    sendCredentialsSMS();
+                }
+            }, 1000);
+        }
+
+        // Reset form
+        function resetExchangerForm() {
+            document.getElementById('exchangerForm').reset();
+            document.getElementById('adminUsername').value = '';
+            document.getElementById('adminPassword').value = '';
+            
+            // Reset subscription plan selection
+            document.querySelector('input[name="subscriptionPlan"][value="trial"]').checked = true;
+            updateFeaturesByPlan('trial');
+        }
+
+        // Load exchangers (mock data)
+        function loadExchangers() {
+            // Mock data - in real app, fetch from server
+            exchangers = [
+                {
+                    id: 1,
+                    businessName: "Dubai Gold Exchange LLC",
+                    credentials: { username: "aedub001", password: "SecurePass123!" },
+                    email: "admin@dubaigold.ae",
+                    phone: "+971 4 123 4567",
+                    country: "AE",
+                    city: "Dubai",
+                    subscription: "premium",
+                    status: "active",
+                    lastLogin: "2024-02-16 09:30:00"
+                },
+                {
+                    id: 2,
+                    businessName: "Tehran Exchange Co",
+                    credentials: { username: "irteh002", password: "TehranEx456@" },
+                    email: "info@tehranex.ir",
+                    phone: "+98 21 123 4567",
+                    country: "IR",
+                    city: "Tehran",
+                    subscription: "standard",
+                    status: "active",
+                    lastLogin: "2024-02-16 08:15:00"
+                },
+                {
+                    id: 3,
+                    businessName: "Riyadh Money Services",
+                    credentials: { username: "sariy003", password: "RiyadhMS789#" },
+                    email: "contact@riyadhms.sa",
+                    phone: "+966 11 123 4567",
+                    country: "SA",
+                    city: "Riyadh",
+                    subscription: "trial",
+                    status: "trial",
+                    lastLogin: "2024-02-15 16:45:00"
+                }
+            ];
+            
+            refreshExchangerList();
+        }
+
+        // Refresh exchanger list
+        function refreshExchangerList() {
+            const tbody = document.getElementById('exchangersTable');
+            if (!tbody) return;
+            
+            const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+            const countryFilter = document.getElementById('countryFilter')?.value || 'all';
+            
+            let filteredExchangers = exchangers;
+            
+            if (statusFilter !== 'all') {
+                filteredExchangers = filteredExchangers.filter(ex => ex.status === statusFilter);
+            }
+            
+            if (countryFilter !== 'all') {
+                filteredExchangers = filteredExchangers.filter(ex => ex.country === countryFilter);
+            }
+            
+            tbody.innerHTML = filteredExchangers.map(exchanger => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div>
+                            <div class="font-medium text-gray-800">${exchanger.businessName}</div>
+                            <div class="text-sm text-gray-600">${exchanger.city}, ${exchanger.country}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">${exchanger.credentials.username}</code>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm">
+                            <div>${exchanger.email}</div>
+                            <div class="text-gray-600">${exchanger.phone}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="capitalize px-2 py-1 rounded text-xs ${
+                            exchanger.subscription === 'premium' ? 'bg-purple-100 text-purple-800' :
+                            exchanger.subscription === 'standard' ? 'bg-blue-100 text-blue-800' :
+                            'bg-gray-100 text-gray-800'
+                        }">${exchanger.subscription}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded text-xs ${
+                            exchanger.status === 'active' ? 'bg-green-100 text-green-800' :
+                            exchanger.status === 'trial' ? 'bg-yellow-100 text-yellow-800' :
+                            exchanger.status === 'suspended' ? 'bg-red-100 text-red-800' :
+                            'bg-gray-100 text-gray-800'
+                        }">${exchanger.status}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        ${exchanger.lastLogin ? new Date(exchanger.lastLogin).toLocaleDateString() : 'Never'}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex space-x-2">
+                            <button onclick="viewExchangerDetails(${exchanger.id})" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="editExchanger(${exchanger.id})" class="text-green-600 hover:text-green-800">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="resetExchangerPassword(${exchanger.id})" class="text-orange-600 hover:text-orange-800">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            <button onclick="suspendExchanger(${exchanger.id})" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load recent exchangers
+        function loadRecentExchangers() {
+            const container = document.getElementById('recentExchangers');
+            if (!container) return;
+            
+            const recent = exchangers.slice(-5).reverse();
+            
+            container.innerHTML = recent.map(exchanger => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+                     onclick="viewExchangerDetails(${exchanger.id})">
+                    <div>
+                        <div class="font-medium text-sm">${exchanger.businessName}</div>
+                        <div class="text-xs text-gray-600">${exchanger.city}</div>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded ${
+                        exchanger.status === 'active' ? 'bg-green-100 text-green-800' :
+                        'bg-gray-100 text-gray-800'
+                    }">${exchanger.status}</span>
+                </div>
+            `).join('');
+        }
+
+        // Search exchangers
+        function searchExchangers() {
+            const searchTerm = document.getElementById('searchExchanger').value.toLowerCase();
+            // In real app, make API call
+            showNotification(`Searching for: ${searchTerm}`, 'info');
+        }
+
+        // Clear search
+        function clearExchangerSearch() {
+            document.getElementById('searchExchanger').value = '';
+            refreshExchangerList();
+        }
+
+        // Admin actions
+        function bulkCredentialReset() {
+            showNotification('Bulk password reset initiated', 'info');
+        }
+
+        function sendSystemUpdate() {
+            showNotification('System update notification sent', 'success');
+        }
+
+        function exportExchangerList() {
+            showNotification('Exchanger list exported', 'success');
+        }
+
+        function renewSubscriptions() {
+            showNotification('Subscription renewal process started', 'info');
+        }
+
+        // Exchanger actions
+        function viewExchangerDetails(id) {
+            const exchanger = exchangers.find(ex => ex.id === id);
+            if (exchanger) {
+                currentExchangerCredentials = exchanger;
+                showCredentialsModal(exchanger);
+            }
+        }
+
+        function editExchanger(id) {
+            showNotification('Edit exchanger functionality', 'info');
+        }
+
+        function resetExchangerPassword(id) {
+            const exchanger = exchangers.find(ex => ex.id === id);
+            if (exchanger) {
+                const newPassword = prompt('Enter new password (leave empty to auto-generate):');
+                if (newPassword !== null) {
+                    exchanger.credentials.password = newPassword || generateRandomPassword();
+                    showNotification('Password reset successfully', 'success');
+                    refreshExchangerList();
+                }
+            }
+        }
+
+        function suspendExchanger(id) {
+            const exchanger = exchangers.find(ex => ex.id === id);
+            if (exchanger && confirm('Are you sure you want to suspend this exchanger?')) {
+                exchanger.status = exchanger.status === 'suspended' ? 'active' : 'suspended';
+                showNotification(`Exchanger ${exchanger.status === 'suspended' ? 'suspended' : 'reactivated'}`, 'success');
+                refreshExchangerList();
+            }
+        }
+
+        function generateRandomPassword() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+            let password = '';
+            for (let i = 0; i < 16; i++) {
+                password += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return password;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,690 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Reports & Analytics - Exchange Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-chart-bar text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Reports & Analytics</h1>
+                        <p class="text-green-200 text-sm">Business Intelligence Dashboard</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="bg-green-700 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-clock text-xs mr-1"></i>Real-time Data
+                    </div>
+                    <a href="dashboard.html" class="bg-green-700 px-4 py-2 rounded hover:bg-green-800">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Date Range Selector -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex flex-wrap justify-between items-center">
+                <h2 class="text-xl font-bold mb-4 md:mb-0">📅 Report Period</h2>
+                <div class="flex flex-wrap space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">From:</label>
+                        <input type="date" id="dateFrom" class="p-2 border rounded-lg" value="2024-01-01">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">To:</label>
+                        <input type="date" id="dateTo" class="p-2 border rounded-lg" value="2024-02-16">
+                    </div>
+                    <button onclick="updateReports()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-refresh"></i> Update
+                    </button>
+                    <div class="flex space-x-2">
+                        <button onclick="setQuickDate(7)" class="bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200">7D</button>
+                        <button onclick="setQuickDate(30)" class="bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200">30D</button>
+                        <button onclick="setQuickDate(90)" class="bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200">90D</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Performance Indicators -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Total Revenue</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="totalRevenue">$284,500</h3>
+                        <p class="text-green-600 text-sm">↗ +23.5% vs last period</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-dollar-sign text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-green-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Total Transactions</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="totalTransactions">15,420</h3>
+                        <p class="text-green-600 text-sm">↗ +18.2% vs last period</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-exchange-alt text-green-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-purple-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Active Customers</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="activeCustomers">8,947</h3>
+                        <p class="text-green-600 text-sm">↗ +12.8% vs last period</p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <i class="fas fa-users text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-orange-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Average Transaction</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="avgTransaction">$18.46</h3>
+                        <p class="text-green-600 text-sm">↗ +4.3% vs last period</p>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-full">
+                        <i class="fas fa-chart-line text-orange-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+            <!-- Revenue Chart -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold">📈 Revenue Trend</h3>
+                    <select id="revenueChartType" onchange="updateRevenueChart()" class="p-2 border rounded">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                <div style="position: relative; height: 400px;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Transaction Volume Chart -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold">📊 Transaction Volume</h3>
+                    <select id="volumeChartType" onchange="updateVolumeChart()" class="p-2 border rounded">
+                        <option value="currency">By Currency</option>
+                        <option value="type">By Type</option>
+                        <option value="country">By Country</option>
+                    </select>
+                </div>
+                <div style="position: relative; height: 400px;">
+                    <canvas id="volumeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Currency Performance -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h3 class="text-lg font-bold mb-6">💱 Currency Performance</h3>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Currency Pair</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Volume</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transactions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avg Rate</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revenue</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="currencyPerformanceTable">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Customer Analytics -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+            <!-- Customer Segmentation -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-6">👥 Customer Segmentation</h3>
+                <div style="position: relative; height: 350px;">
+                    <canvas id="customerSegmentChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Geographic Distribution -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-6">🌍 Geographic Distribution</h3>
+                <div style="position: relative; height: 350px;">
+                    <canvas id="geographicChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h3 class="text-lg font-bold mb-6">🎯 Performance Metrics</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Transaction Success Rate -->
+                <div class="text-center">
+                    <div class="bg-green-100 rounded-full p-6 w-32 h-32 mx-auto mb-4 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-green-600">98.7%</div>
+                            <div class="text-sm text-green-700">Success Rate</div>
+                        </div>
+                    </div>
+                    <h4 class="font-semibold text-gray-800">Transaction Success</h4>
+                    <p class="text-sm text-gray-600">15,205 successful out of 15,420 total</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div class="bg-green-600 h-2 rounded-full" style="width: 98.7%"></div>
+                    </div>
+                </div>
+
+                <!-- Average Processing Time -->
+                <div class="text-center">
+                    <div class="bg-blue-100 rounded-full p-6 w-32 h-32 mx-auto mb-4 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-blue-600">2.3</div>
+                            <div class="text-sm text-blue-700">Minutes</div>
+                        </div>
+                    </div>
+                    <h4 class="font-semibold text-gray-800">Processing Time</h4>
+                    <p class="text-sm text-gray-600">Average transaction processing</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 85%"></div>
+                    </div>
+                </div>
+
+                <!-- Customer Satisfaction -->
+                <div class="text-center">
+                    <div class="bg-purple-100 rounded-full p-6 w-32 h-32 mx-auto mb-4 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-purple-600">4.8</div>
+                            <div class="text-sm text-purple-700">/ 5.0</div>
+                        </div>
+                    </div>
+                    <h4 class="font-semibold text-gray-800">Customer Rating</h4>
+                    <p class="text-sm text-gray-600">Based on 2,847 reviews</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div class="bg-purple-600 h-2 rounded-full" style="width: 96%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export and Actions -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex flex-wrap justify-between items-center">
+                <h3 class="text-lg font-bold mb-4 md:mb-0">📥 Export Reports</h3>
+                <div class="flex flex-wrap space-x-4">
+                    <button onclick="generateDetailedReport()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-file-alt mr-2"></i>Detailed Report
+                    </button>
+                    <button onclick="exportToPDF()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                        <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                    </button>
+                    <button onclick="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                        <i class="fas fa-file-excel mr-2"></i>Export Excel
+                    </button>
+                    <button onclick="exportToCSV()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                        <i class="fas fa-file-csv mr-2"></i>Export CSV
+                    </button>
+                    <button onclick="scheduleReport()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                        <i class="fas fa-clock mr-2"></i>Schedule
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Quick Export Options -->
+            <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="border rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer" onclick="exportQuick('transactions')">
+                    <i class="fas fa-exchange-alt text-2xl text-blue-600 mb-2"></i>
+                    <div class="font-semibold text-sm">Transaction Log</div>
+                    <div class="text-xs text-gray-600">All transactions</div>
+                </div>
+                
+                <div class="border rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer" onclick="exportQuick('customers')">
+                    <i class="fas fa-users text-2xl text-green-600 mb-2"></i>
+                    <div class="font-semibold text-sm">Customer Data</div>
+                    <div class="text-xs text-gray-600">Customer analytics</div>
+                </div>
+                
+                <div class="border rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer" onclick="exportQuick('revenue')">
+                    <i class="fas fa-chart-line text-2xl text-purple-600 mb-2"></i>
+                    <div class="font-semibold text-sm">Revenue Report</div>
+                    <div class="text-xs text-gray-600">Financial summary</div>
+                </div>
+                
+                <div class="border rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer" onclick="exportQuick('compliance')">
+                    <i class="fas fa-shield-alt text-2xl text-orange-600 mb-2"></i>
+                    <div class="font-semibold text-sm">Compliance</div>
+                    <div class="text-xs text-gray-600">Regulatory report</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Charts and data management
+        let charts = {};
+        
+        // Sample data
+        const reportData = {
+            revenue: {
+                daily: [12500, 15800, 11200, 18900, 16700, 14300, 19800, 17600, 13900, 21200, 18400, 16800, 20500, 17900, 15600],
+                weekly: [89600, 94200, 87300, 102400, 98700],
+                monthly: [384500, 412800, 398200, 445600]
+            },
+            transactions: {
+                currency: {
+                    labels: ['USD/AED', 'AED/IRT', 'SAR/AED', 'EUR/USD', 'GBP/USD', 'AED/INR'],
+                    data: [3420, 2890, 1560, 1240, 980, 890]
+                },
+                type: {
+                    labels: ['Currency Exchange', 'Remittance', 'P2P Trading', 'Crypto Exchange'],
+                    data: [6850, 4320, 2780, 1470]
+                },
+                country: {
+                    labels: ['🇦🇪 UAE', '🇸🇦 Saudi', '🇮🇷 Iran', '🇮🇳 India', '🇵🇰 Pakistan', 'Others'],
+                    data: [4280, 2640, 3120, 2180, 1560, 1640]
+                }
+            },
+            customers: {
+                segments: {
+                    labels: ['High Value', 'Regular', 'New', 'Occasional', 'Inactive'],
+                    data: [15, 35, 25, 20, 5],
+                    colors: ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#6B7280']
+                }
+            }
+        };
+
+        // Currency performance data
+        const currencyPerformance = [
+            { pair: 'USD/AED', volume: '$2.4M', transactions: 3420, avgRate: '3.6725', revenue: '$12,680', growth: '+18.5%', growthColor: 'text-green-600' },
+            { pair: 'AED/IRT', volume: 'AED 8.2M', transactions: 2890, avgRate: '11,245', revenue: '$41,000', growth: '+25.2%', growthColor: 'text-green-600' },
+            { pair: 'SAR/AED', volume: 'SAR 1.8M', transactions: 1560, avgRate: '0.9793', revenue: '$8,940', growth: '+12.3%', growthColor: 'text-green-600' },
+            { pair: 'EUR/USD', volume: '€980K', transactions: 1240, avgRate: '1.0856', revenue: '$5,670', growth: '-2.1%', growthColor: 'text-red-600' },
+            { pair: 'GBP/USD', volume: '£750K', transactions: 980, avgRate: '1.2634', revenue: '$4,890', growth: '+8.7%', growthColor: 'text-green-600' },
+            { pair: 'AED/INR', volume: 'AED 1.2M', transactions: 890, avgRate: '22.65', revenue: '$6,120', growth: '+15.4%', growthColor: 'text-green-600' }
+        ];
+
+        // Initialize charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setupCharts();
+            populateCurrencyPerformanceTable();
+            setDefaultDates();
+        });
+
+        function setupCharts() {
+            setupRevenueChart();
+            setupVolumeChart();
+            setupCustomerSegmentChart();
+            setupGeographicChart();
+        }
+
+        function setupRevenueChart() {
+            const ctx = document.getElementById('revenueChart');
+            if (!ctx) return;
+
+            const labels = Array.from({length: 15}, (_, i) => {
+                const date = new Date();
+                date.setDate(date.getDate() - (14 - i));
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+
+            charts.revenue = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue (USD)',
+                        data: reportData.revenue.daily,
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#10B981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Revenue: $' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f3f4f6'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function setupVolumeChart() {
+            const ctx = document.getElementById('volumeChart');
+            if (!ctx) return;
+
+            charts.volume = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: reportData.transactions.currency.labels,
+                    datasets: [{
+                        data: reportData.transactions.currency.data,
+                        backgroundColor: [
+                            '#3B82F6',
+                            '#10B981',
+                            '#F59E0B',
+                            '#EF4444',
+                            '#8B5CF6',
+                            '#06B6D4'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((sum, value) => sum + value, 0);
+                                    const percentage = ((context.parsed * 100) / total).toFixed(1);
+                                    return context.label + ': ' + context.parsed.toLocaleString() + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function setupCustomerSegmentChart() {
+            const ctx = document.getElementById('customerSegmentChart');
+            if (!ctx) return;
+
+            charts.customerSegment = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: reportData.customers.segments.labels,
+                    datasets: [{
+                        data: reportData.customers.segments.data,
+                        backgroundColor: reportData.customers.segments.colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function setupGeographicChart() {
+            const ctx = document.getElementById('geographicChart');
+            if (!ctx) return;
+
+            charts.geographic = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: reportData.transactions.country.labels,
+                    datasets: [{
+                        label: 'Transactions',
+                        data: reportData.transactions.country.data,
+                        backgroundColor: [
+                            '#3B82F6',
+                            '#10B981',
+                            '#F59E0B',
+                            '#EF4444',
+                            '#8B5CF6',
+                            '#6B7280'
+                        ],
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f3f4f6'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function populateCurrencyPerformanceTable() {
+            const tbody = document.getElementById('currencyPerformanceTable');
+            if (!tbody) return;
+
+            tbody.innerHTML = currencyPerformance.map(item => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 font-medium">${item.pair}</td>
+                    <td class="px-6 py-4">${item.volume}</td>
+                    <td class="px-6 py-4">${item.transactions.toLocaleString()}</td>
+                    <td class="px-6 py-4 font-mono">${item.avgRate}</td>
+                    <td class="px-6 py-4 font-semibold">${item.revenue}</td>
+                    <td class="px-6 py-4 ${item.growthColor} font-semibold">${item.growth}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Chart update functions
+        function updateRevenueChart() {
+            const chartType = document.getElementById('revenueChartType').value;
+            // Update chart data based on selected type
+            // Implementation would update the chart with different data
+            console.log('Updating revenue chart to:', chartType);
+        }
+
+        function updateVolumeChart() {
+            const chartType = document.getElementById('volumeChartType').value;
+            const newData = reportData.transactions[chartType];
+            
+            if (charts.volume && newData) {
+                charts.volume.data.labels = newData.labels;
+                charts.volume.data.datasets[0].data = newData.data;
+                charts.volume.update();
+            }
+        }
+
+        // Date functions
+        function setDefaultDates() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+            
+            document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+            document.getElementById('dateFrom').value = thirtyDaysAgo.toISOString().split('T')[0];
+        }
+
+        function setQuickDate(days) {
+            const today = new Date();
+            const pastDate = new Date(today.getTime() - (days * 24 * 60 * 60 * 1000));
+            
+            document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+            document.getElementById('dateFrom').value = pastDate.toISOString().split('T')[0];
+            
+            updateReports();
+        }
+
+        function updateReports() {
+            const fromDate = document.getElementById('dateFrom').value;
+            const toDate = document.getElementById('dateTo').value;
+            
+            console.log('Updating reports from', fromDate, 'to', toDate);
+            // Here you would typically fetch new data from your API
+            
+            // Show loading indicator
+            showToast('📊 Updating reports...', 'info');
+            
+            // Simulate API call
+            setTimeout(() => {
+                showToast('✅ Reports updated successfully!', 'success');
+            }, 1500);
+        }
+
+        // Export functions
+        function generateDetailedReport() {
+            showToast('📋 Generating detailed report...', 'info');
+            setTimeout(() => {
+                showToast('✅ Detailed report generated!', 'success');
+            }, 2000);
+        }
+
+        function exportToPDF() {
+            showToast('📄 Exporting to PDF...', 'info');
+            setTimeout(() => {
+                showToast('📥 PDF report downloaded!', 'success');
+            }, 1500);
+        }
+
+        function exportToExcel() {
+            showToast('📊 Exporting to Excel...', 'info');
+            setTimeout(() => {
+                showToast('📥 Excel report downloaded!', 'success');
+            }, 1500);
+        }
+
+        function exportToCSV() {
+            showToast('📄 Exporting to CSV...', 'info');
+            setTimeout(() => {
+                showToast('📥 CSV report downloaded!', 'success');
+            }, 1500);
+        }
+
+        function scheduleReport() {
+            showToast('⏰ Opening report scheduler...', 'info');
+        }
+
+        function exportQuick(type) {
+            const reportTypes = {
+                'transactions': 'Transaction Log',
+                'customers': 'Customer Analytics',
+                'revenue': 'Revenue Summary',
+                'compliance': 'Compliance Report'
+            };
+            
+            showToast(`📥 Exporting ${reportTypes[type]}...`, 'info');
+            setTimeout(() => {
+                showToast(`✅ ${reportTypes[type]} exported!`, 'success');
+            }, 1500);
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 
+                'bg-blue-600'
+            }`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

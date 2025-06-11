@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تنظیمات سیستم - پلتفرم صرافی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Vazir', sans-serif; }
+        .persian-num { font-family: 'IRANSans', sans-serif; }
+        .settings-tab { 
+            transition: all 0.3s ease; 
+            border-bottom: 3px solid transparent;
+        }
+        .settings-tab.active { 
+            border-bottom-color: #3b82f6; 
+            background-color: #eff6ff; 
+            color: #1d4ed8;
+        }
+        .settings-tab:hover { background-color: #f3f4f6; }
+        .setting-card { transition: all 0.3s ease; }
+        .setting-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
+        .toggle-switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { 
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
+            background-color: #ccc; transition: .4s; border-radius: 34px; 
+        }
+        .slider:before { 
+            position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; 
+            background-color: white; transition: .4s; border-radius: 50%; 
+        }
+        input:checked + .slider { background-color: #3b82f6; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .settings-content { display: none; }
+        .settings-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        <i class="fas fa-cogs text-blue-600 ml-2"></i>
+                        تنظیمات سیستم
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <button id="saveAllSettings" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                        <i class="fas fa-save ml-1"></i>
+                        ذخیره همه
+                    </button>
+                    <button id="exportSettings" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-download ml-1"></i>
+                        خروجی
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Settings Navigation -->
+        <div class="bg-white rounded-lg shadow-lg mb-8">
+            <div class="flex overflow-x-auto">
+                <button class="settings-tab active px-6 py-4 text-sm font-medium whitespace-nowrap" data-tab="general">
+                    <i class="fas fa-cog ml-2"></i>عمومی
+                </button>
+                <button class="settings-tab px-6 py-4 text-sm font-medium whitespace-nowrap" data-tab="security">
+                    <i class="fas fa-shield-alt ml-2"></i>امنیت
+                </button>
+                <button class="settings-tab px-6 py-4 text-sm font-medium whitespace-nowrap" data-tab="notifications">
+                    <i class="fas fa-bell ml-2"></i>اعلان‌ها
+                </button>
+                <button class="settings-tab px-6 py-4 text-sm font-medium whitespace-nowrap" data-tab="rates">
+                    <i class="fas fa-chart-line ml-2"></i>نرخ‌ها
+                </button>
+                <button class="settings-tab px-6 py-4 text-sm font-medium whitespace-nowrap" data-tab="limits">
+                    <i class="fas fa-exclamation-triangle ml-2"></i>محدودیت‌ها
+                </button>
+                <button class="settings-tab px-6 py-4 text-sm font-medium whitespace-nowrap" data-tab="backup">
+                    <i class="fas fa-database ml-2"></i>پشتیبان‌گیری
+                </button>
+            </div>
+        </div>
+
+        <!-- General Settings Tab -->
+        <div id="generalTab" class="settings-content active">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Company Information -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-building text-blue-600 ml-2"></i>
+                        اطلاعات شرکت
+                    </h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">نام شرکت</label>
+                            <input type="text" id="companyName" value="صرافی پیشرو" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">آدرس</label>
+                            <textarea id="companyAddress" rows="3" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">دبی، امارات متحده عربی</textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">تلفن</label>
+                                <input type="tel" id="companyPhone" value="+971-4-1234567" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">ایمیل</label>
+                                <input type="email" id="companyEmail" value="info@exchange.ae" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- System Preferences -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-sliders-h text-purple-600 ml-2"></i>
+                        تنظیمات سیستم
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">زبان پیش‌فرض</label>
+                                <p class="text-sm text-gray-600">زبان اصلی رابط کاربری</p>
+                            </div>
+                            <select id="defaultLanguage" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="fa">فارسی</option>
+                                <option value="ar">عربی</option>
+                                <option value="en">انگلیسی</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">ارز پایه</label>
+                                <p class="text-sm text-gray-600">ارز اصلی نمایش قیمت‌ها</p>
+                            </div>
+                            <select id="baseCurrency" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="AED">درهم امارات (AED)</option>
+                                <option value="USD">دلار آمریکا (USD)</option>
+                                <option value="EUR">یورو (EUR)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">منطقه زمانی</label>
+                                <p class="text-sm text-gray-600">منطقه زمانی سیستم</p>
+                            </div>
+                            <select id="timezone" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="Asia/Dubai">دبی (UTC+4)</option>
+                                <option value="Asia/Tehran">تهران (UTC+3:30)</option>
+                                <option value="Europe/London">لندن (UTC+0)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Settings Tab -->
+        <div id="securityTab" class="settings-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Password Settings -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-key text-red-600 ml-2"></i>
+                        تنظیمات رمز عبور
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">تغییر رمز عبور اجباری</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="forcePasswordChange">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">مدت انقضای رمز عبور</label>
+                                <p class="text-sm text-gray-600">به روز</p>
+                            </div>
+                            <input type="number" id="passwordExpiry" value="90" min="30" max="365"
+                                   class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center">
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">احراز هویت دو مرحله‌ای</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="enable2FA" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Management -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-user-clock text-orange-600 ml-2"></i>
+                        مدیریت جلسات
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">مدت انقضای جلسه</label>
+                                <p class="text-sm text-gray-600">به دقیقه</p>
+                            </div>
+                            <input type="number" id="sessionTimeout" value="60" min="15" max="480"
+                                   class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center">
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">خروج خودکار در عدم فعالیت</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoLogout" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div id="notificationsTab" class="settings-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Email Notifications -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-envelope text-blue-600 ml-2"></i>
+                        اعلان‌های ایمیل
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">تراکنش‌های جدید</label>
+                                <p class="text-sm text-gray-600">اطلاع از تراکنش‌های انجام شده</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="emailNewTransactions" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">مشکلات امنیتی</label>
+                                <p class="text-sm text-gray-600">هشدارهای امنیتی فوری</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="emailSecurity" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMS Notifications -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-sms text-green-600 ml-2"></i>
+                        اعلان‌های پیامکی
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">تراکنش‌های بالای حد</label>
+                                <p class="text-sm text-gray-600">مبالغ بالای 10,000 درهم</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="smsHighValue" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">کدهای تأیید</label>
+                                <p class="text-sm text-gray-600">کدهای دو مرحله‌ای</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="smsVerification" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rates Tab -->
+        <div id="ratesTab" class="settings-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Rate Update Settings -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-sync text-blue-600 ml-2"></i>
+                        به‌روزرسانی نرخ‌ها
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">به‌روزرسانی خودکار</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoRateUpdate" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">فاصله به‌روزرسانی</label>
+                                <p class="text-sm text-gray-600">به دقیقه</p>
+                            </div>
+                            <select id="updateInterval" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="1">1 دقیقه</option>
+                                <option value="5" selected>5 دقیقه</option>
+                                <option value="15">15 دقیقه</option>
+                                <option value="30">30 دقیقه</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Margin Settings -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-percentage text-green-600 ml-2"></i>
+                        حاشیه سود
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">حاشیه سود پیش‌فرض</label>
+                                <p class="text-sm text-gray-600">درصد</p>
+                            </div>
+                            <input type="number" id="defaultMargin" value="2.5" min="0" max="10" step="0.1"
+                                   class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Limits Tab -->
+        <div id="limitsTab" class="settings-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Transaction Limits -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-exclamation-triangle text-orange-600 ml-2"></i>
+                        محدودیت‌های تراکنش
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">حداکثر مبلغ روزانه</label>
+                                <p class="text-sm text-gray-600">به درهم</p>
+                            </div>
+                            <input type="number" id="dailyLimit" value="100000" min="1000"
+                                   class="w-32 px-3 py-2 border border-gray-300 rounded-lg text-center">
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">حداکثر مبلغ ماهانه</label>
+                                <p class="text-sm text-gray-600">به درهم</p>
+                            </div>
+                            <input type="number" id="monthlyLimit" value="1000000" min="10000"
+                                   class="w-32 px-3 py-2 border border-gray-300 rounded-lg text-center">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Limits -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-users text-purple-600 ml-2"></i>
+                        محدودیت‌های کاربری
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">حداکثر تعداد کاربران</label>
+                                <p class="text-sm text-gray-600">کاربر فعال</p>
+                            </div>
+                            <input type="number" id="maxUsers" value="50" min="1"
+                                   class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup Tab -->
+        <div id="backupTab" class="settings-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Backup Settings -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-database text-indigo-600 ml-2"></i>
+                        تنظیمات پشتیبان‌گیری
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">پشتیبان‌گیری خودکار</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoBackup" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="font-medium">فاصله پشتیبان‌گیری</label>
+                                <p class="text-sm text-gray-600">ساعت</p>
+                            </div>
+                            <select id="backupInterval" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="6">6 ساعت</option>
+                                <option value="12">12 ساعت</option>
+                                <option value="24" selected>24 ساعت</option>
+                            </select>
+                        </div>
+                        
+                        <div class="pt-4 border-t">
+                            <button id="createBackup" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">
+                                <i class="fas fa-save ml-1"></i>
+                                ایجاد پشتیبان دستی
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Restore Settings -->
+                <div class="setting-card bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-history text-green-600 ml-2"></i>
+                        بازیابی اطلاعات
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">انتخاب فایل پشتیبان</label>
+                            <input type="file" id="restoreFile" accept=".backup,.json" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        
+                        <button id="restoreBackup" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                            <i class="fas fa-upload ml-1"></i>
+                            بازیابی از پشتیبان
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification (فقط یک بار!) -->
+    <div id="toast" class="fixed top-4 right-4 z-50 transform translate-x-full transition-transform duration-300">
+        <div class="bg-white rounded-lg shadow-lg border-r-4 p-4 max-w-sm">
+            <div class="flex items-center">
+                <div id="toastIcon" class="mr-3"></div>
+                <div id="toastMessage" class="text-sm text-gray-700"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/settings.js"></script>
+    <script src="../js/language.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت همکاران - پلتفرم صرافی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Tahoma', sans-serif; }
+        .spinner { width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="../dashboard.html" class="text-blue-600 hover:text-blue-800 transition-colors">
+                        <i class="fas fa-arrow-right text-lg"></i>
+                    </a>
+                    <h1 class="text-xl font-bold text-gray-900">
+                        <i class="fas fa-users text-blue-600 ml-2"></i>مدیریت همکاران
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">صرافی: <span class="font-medium">صرافی نمونه</span></span>
+                    <div class="h-6 w-px bg-gray-300"></div>
+                    <button class="text-red-600 hover:text-red-800 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i> خروج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- آمار کلی -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user-check text-2xl text-blue-600"></i>
+                    </div>
+                    <div class="mr-4">
+                        <div class="text-sm font-medium text-gray-500">همکاران فعال</div>
+                        <div class="text-2xl font-bold text-gray-900" id="activePartnersCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-clock text-2xl text-yellow-600"></i>
+                    </div>
+                    <div class="mr-4">
+                        <div class="text-sm font-medium text-gray-500">در انتظار تأیید</div>
+                        <div class="text-2xl font-bold text-gray-900" id="pendingPartnersCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-chart-line text-2xl text-green-600"></i>
+                    </div>
+                    <div class="mr-4">
+                        <div class="text-sm font-medium text-gray-500">حجم ماهانه</div>
+                        <div class="text-2xl font-bold text-gray-900" id="totalPartnersVolume">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-percentage text-2xl text-purple-600"></i>
+                    </div>
+                    <div class="mr-4">
+                        <div class="text-sm font-medium text-gray-500">میانگین کمیسیون</div>
+                        <div class="text-2xl font-bold text-gray-900" id="avgCommissionRate">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- لیست همکاران -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                            <h2 class="text-lg font-medium text-gray-900">لیست همکاران</h2>
+                            <div class="mt-4 md:mt-0 flex space-x-3">
+                                <div class="relative">
+                                    <input type="text" id="partnerSearch" placeholder="جستجو همکار..." 
+                                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                        <i class="fas fa-search text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">همه وضعیت‌ها</option>
+                                    <option value="active">فعال</option>
+                                    <option value="pending">در انتظار</option>
+                                    <option value="inactive">غیرفعال</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">همکار</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">وضعیت</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تخفیف</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">کمیسیون</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">حجم ماهانه</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تراکنش‌ها</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="partnersTable" class="bg-white divide-y divide-gray-200">
+                                <!-- محتوا توسط JavaScript پر می‌شود -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فرم اضافه کردن همکار -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">افزودن همکار جدید</h3>
+                    </div>
+                    <div class="p-6">
+                        <form id="addPartnerForm" class="space-y-4">
+                            <div>
+                                <label for="partnerName" class="block text-sm font-medium text-gray-700 mb-2">نام همکار</label>
+                                <input type="text" id="partnerName" name="name" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label for="partnerPhone" class="block text-sm font-medium text-gray-700 mb-2">شماره تلفن</label>
+                                <input type="tel" id="partnerPhone" name="phone" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="+971501234567">
+                            </div>
+
+                            <div>
+                                <label for="partnerEmail" class="block text-sm font-medium text-gray-700 mb-2">ایمیل</label>
+                                <input type="email" id="partnerEmail" name="email" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+
+                            <div>
+                                <label for="partnerNationalId" class="block text-sm font-medium text-gray-700 mb-2">کد ملی</label>
+                                <input type="text" id="partnerNationalId" name="nationalId" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label for="discountRate" class="block text-sm font-medium text-gray-700 mb-2">نرخ تخفیف (%)</label>
+                                    <input type="number" id="discountRate" name="discountRate" step="0.1" min="0" max="10" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label for="commissionRate" class="block text-sm font-medium text-gray-700 mb-2">نرخ کمیسیون (%)</label>
+                                    <input type="number" id="commissionRate" name="commissionRate" step="0.1" min="0" max="5" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="maxLimit" class="block text-sm font-medium text-gray-700 mb-2">حد مجاز معامله (درهم)</label>
+                                <input type="number" id="maxLimit" name="maxLimit" min="1000" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="50000">
+                            </div>
+
+                            <div>
+                                <label for="bankAccount" class="block text-sm font-medium text-gray-700 mb-2">حساب بانکی</label>
+                                <input type="text" id="bankAccount" name="bankAccount" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="ADCB - 1234567890">
+                            </div>
+
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                                <i class="fas fa-plus ml-2"></i>افزودن همکار
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ابزارهای اضافی -->
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- ماشین حساب همکاران -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-calculator text-blue-600 ml-2"></i>ماشین حساب همکاران
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ارز مبدأ</label>
+                            <select id="fromCurrency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="USD">دلار آمریکا (USD)</option>
+                                <option value="EUR">یورو (EUR)</option>
+                                <option value="AED">درهم امارات (AED)</option>
+                                <option value="IRR">تومان ایران (IRR)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ارز مقصد</label>
+                            <select id="toCurrency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="AED">درهم امارات (AED)</option>
+                                <option value="USD">دلار آمریکا (USD)</option>
+                                <option value="EUR">یورو (EUR)</option>
+                                <option value="IRR">تومان ایران (IRR)</option>
+                            </select>
+                        </div>
+                    </div>
+<div class="grid grid-cols-2 gap-4 mb-4 bg-gray-50 p-4 rounded-lg">
+            <div class="text-center">
+                <div class="text-xs text-red-600 mb-1">نرخ مشتری (بازار)</div>
+                <div id="marketRate" class="text-lg font-bold text-red-700">-</div>
+            </div>
+            <div class="text-center">
+                <div class="text-xs text-green-600 mb-1">نرخ همکار (شما)</div>
+                <div id="partnerRate" class="text-lg font-bold text-green-700">-</div>
+            </div>
+        </div>
+        <!-- سود در هر واحد -->
+        <div class="mb-4 bg-blue-50 p-3 rounded-lg text-center">
+            <div class="text-xs text-blue-600 mb-1">سود در هر واحد</div>
+            <div id="profitPerUnit" class="text-lg font-bold text-blue-700">-</div>
+        </div>
+        <!-- مبلغ ورودی -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">مبلغ</label>
+            <input type="number" id="amountInput" placeholder="مبلغ را وارد کنید"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+        </div>
+        <!-- نوع محاسبه -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">نوع محاسبه</label>
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="multiplyBtn" class="calc-type-btn active px-3 py-2 text-sm border rounded-lg bg-blue-600 text-white">
+                    ضرب (مبلغ × نرخ)
+                </button>
+                <button type="button" id="divideBtn" class="calc-type-btn px-3 py-2 text-sm border rounded-lg bg-gray-200 text-gray-700">
+                    تقسیم (مبلغ ÷ نرخ)
+                </button>
+            </div>
+            <input type="hidden" id="calculationType" value="multiply">
+        </div>
+        <!-- پیش‌نمایش سریع -->
+        <div id="quickPreview" class="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200" style="display: none;">
+            <div class="text-center">
+                <div class="text-sm text-yellow-700 mb-1">نتیجه سریع</div>
+                <div id="quickResult" class="text-xl font-bold text-yellow-800">-</div>
+                <div class="text-xs text-yellow-600 mt-1">
+                    سود شما: <span id="quickProfit" class="font-semibold">-</span>
+                </div>
+            </div>
+        </div>
+        <!-- دکمه‌های عمل -->
+        <div class="flex space-x-2">
+            <button id="manualCalculate" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                <i class="fas fa-calculator ml-2"></i>محاسبه دقیق
+            </button>
+            <button id="switchCurrencies" class="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors" title="تعویض ارزها">
+                <i class="fas fa-exchange-alt"></i>
+            </button>
+            <button id="clearCalculation" class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors" title="پاک کردن">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <!-- تاریخچه محاسبات اخیر -->
+        <div class="mt-6 pt-4 border-t border-gray-200">
+            <h4 class="text-sm font-medium text-gray-700 mb-3">محاسبات اخیر</h4>
+            <div id="recentCalculations" class="space-y-2 max-h-32 overflow-y-auto">
+                <!-- محاسبات اخیر توسط JavaScript پر می‌شود -->
+            </div>
+        </div>
+    </div>
+</div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">مبلغ</label>
+                        <input type="number" id="amountInput" placeholder="مبلغ را وارد کنید"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">نوع محاسبه</label>
+                        <select id="calculationType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="multiply">ضرب (مبلغ × نرخ)</option>
+                            <option value="divide">تقسیم (مبلغ ÷ نرخ)</option>
+                        </select>
+                    </div>
+
+                    <div id="commissionPreview" class="mb-4"></div>
+
+                    <div class="flex space-x-2">
+                        <button id="manualCalculate" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-calculator ml-2"></i>محاسبه
+                        </button>
+                        <button id="switchCurrencies" class="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                        <button id="clearCalculation" class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- محاسبه کمیسیون -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-coins text-green-600 ml-2"></i>محاسبه کمیسیون
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">مبلغ معامله</label>
+                            <input type="number" id="transactionAmount" placeholder="مبلغ"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ارز</label>
+                            <select id="transactionCurrency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="AED">درهم امارات</option>
+                                <option value="USD">دلار آمریکا</option>
+                                <option value="EUR">یورو</option>
+                                <option value="IRR">تومان ایران</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">نوع معامله</label>
+                        <select id="transactionType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="exchange">تبدیل ارز</option>
+                            <option value="transfer">حواله</option>
+                            <option value="buy">خرید</option>
+                            <option value="sell">فروش</option>
+                        </select>
+                    </div>
+
+                    <button id="calculateCommission" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-calculator ml-2"></i>محاسبه کمیسیون
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- نتایج محاسبات -->
+        <div class="mt-8">
+            <div id="calculationResult" class="fade-in"></div>
+            <div id="commissionResult" class="fade-in"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/partners.js"></script>
+    <script src="../js/partner-calculator.js"></script>
+    <script src="../js/commission-calculator.js"></script>
+    <script src="../js/partner-auth.js"></script>
+</body>
+</html>

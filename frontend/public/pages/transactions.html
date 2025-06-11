@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت تراکنش‌ها - پلتفرم صرافی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Vazir', sans-serif; }
+        .section-content { display: none; }
+        .section-content.active { display: block; }
+        .persian-num { font-family: 'IRANSans', sans-serif; }
+        .spinner { width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .transaction-card { transition: all 0.3s ease; }
+        .transaction-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .status-pending { background: #fef3c7; color: #d97706; }
+        .status-completed { background: #d1fae5; color: #059669; }
+        .status-failed { background: #fee2e2; color: #dc2626; }
+        .profit-positive { color: #059669; }
+        .profit-negative { color: #dc2626; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        <i class="fas fa-exchange-alt text-blue-600 ml-2"></i>
+                        مدیریت تراکنش‌ها
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-download ml-1"></i>
+                        خروجی Excel
+                    </button>
+                    <button id="newTransactionBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus ml-1"></i>
+                        تراکنش جدید
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6 transaction-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">کل تراکنش‌های امروز</p>
+                        <p id="todayTransactions" class="text-2xl font-bold text-gray-900 persian-num">0</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span id="todayGrowth" class="text-sm profit-positive">+12.5%</span>
+                    <span class="text-sm text-gray-500">نسبت به دیروز</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 transaction-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">حجم معاملات امروز</p>
+                        <p id="todayVolume" class="text-2xl font-bold text-gray-900 persian-num">0</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-coins text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span id="volumeGrowth" class="text-sm profit-positive">+8.3%</span>
+                    <span class="text-sm text-gray-500">نسبت به دیروز</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 transaction-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">سود خالص امروز</p>
+                        <p id="todayProfit" class="text-2xl font-bold text-gray-900 persian-num">0</p>
+                    </div>
+                    <div class="bg-yellow-100 p-3 rounded-full">
+                        <i class="fas fa-chart-pie text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span id="profitGrowth" class="text-sm profit-positive">+15.7%</span>
+                    <span class="text-sm text-gray-500">نسبت به دیروز</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 transaction-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">تراکنش‌های در انتظار</p>
+                        <p id="pendingTransactions" class="text-2xl font-bold text-gray-900 persian-num">0</p>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-full">
+                        <i class="fas fa-clock text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="text-sm text-orange-600">نیاز به بررسی</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">نمودار تراکنش‌های هفتگی</h3>
+                <canvas id="weeklyChart" width="400" height="200"></canvas>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">توزیع ارزها</h3>
+                <canvas id="currencyChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Filters & Search -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">جستجو</label>
+                    <input type="text" id="searchInput" placeholder="کد تراکنش، مشتری..." 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">وضعیت</label>
+                    <select id="statusFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">همه</option>
+                        <option value="pending">در انتظار</option>
+                        <option value="completed">تکمیل شده</option>
+                        <option value="failed">ناموفق</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ارز</label>
+                    <select id="currencyFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">همه</option>
+                        <option value="AED">درهم</option>
+                        <option value="USD">دلار</option>
+                        <option value="EUR">یورو</option>
+                        <option value="IRR">تومان</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">از تاریخ</label>
+                    <input type="date" id="fromDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">تا تاریخ</label>
+                    <input type="date" id="toDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold">فهرست تراکنش‌ها</h3>
+                <div class="flex items-center space-x-2 space-x-reverse">
+                    <button id="refreshBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-refresh"></i>
+                    </button>
+                    <span id="totalRecords" class="text-sm text-gray-500">0 رکورد</span>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">کد تراکنش</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">مشتری</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">نوع معامله</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">مبلغ</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">نرخ</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">سود</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">وضعیت</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاریخ</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable" class="bg-white divide-y divide-gray-200">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+                <div class="text-sm text-gray-500">
+                    نمایش <span id="showingFrom">1</span> تا <span id="showingTo">10</span> از <span id="totalResults">100</span> نتیجه
+                </div>
+                <div class="flex space-x-2 space-x-reverse">
+                    <button id="prevPage" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div id="pageNumbers" class="flex space-x-1 space-x-reverse">
+                        <!-- Dynamic page numbers -->
+                    </div>
+                    <button id="nextPage" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Transaction Modal -->
+    <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">تراکنش جدید</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="newTransactionForm" class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">نام مشتری *</label>
+                            <input type="text" id="customerName" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">شماره تلفن</label>
+                            <input type="tel" id="customerPhone"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">نوع معامله *</label>
+                            <select id="transactionType" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">انتخاب کنید</option>
+                                <option value="buy">خرید ارز</option>
+                                <option value="sell">فروش ارز</option>
+                                <option value="exchange">تبدیل ارز</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ارز مبدأ *</label>
+                            <select id="fromCurrency" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">انتخاب کنید</option>
+                                <option value="AED">درهم امارات (AED)</option>
+                                <option value="USD">دلار آمریکا (USD)</option>
+                                <option value="EUR">یورو (EUR)</option>
+                                <option value="IRR">تومان ایران (IRR)</option>
+                                <option value="SAR">ریال سعودی (SAR)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ارز مقصد *</label>
+                            <select id="toCurrency" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">انتخاب کنید</option>
+                                <option value="AED">درهم امارات (AED)</option>
+                                <option value="USD">دلار آمریکا (USD)</option>
+                                <option value="EUR">یورو (EUR)</option>
+                                <option value="IRR">تومان ایران (IRR)</option>
+                                <option value="SAR">ریال سعودی (SAR)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">مبلغ *</label>
+                            <input type="number" id="amount" step="0.01" min="1" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">نرخ مشتری *</label>
+                            <input type="number" id="customerRate" step="0.0001" min="0" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">نرخ بازار</label>
+                            <input type="number" id="marketRate" step="0.0001" min="0" readonly
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100">
+                        </div>
+                    </div>
+
+                    <!-- Calculation Results -->
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-3">محاسبات:</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="flex justify-between">
+                                <span>مبلغ تبدیل شده:</span>
+                                <span id="convertedAmount" class="font-medium persian-num">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>سود/ضرر:</span>
+                                <span id="profitLoss" class="font-medium persian-num">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>کمیسیون همکار:</span>
+                                <span id="partnerCommission" class="font-medium persian-num">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>سود خالص:</span>
+                                <span id="netProfit" class="font-medium persian-num">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">توضیحات</label>
+                        <textarea id="notes" rows="3" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                  placeholder="توضیحات اضافی..."></textarea>
+                    </div>
+
+                    <div class="mt-6 flex justify-end space-x-3 space-x-reverse">
+                        <button type="button" id="cancelTransaction" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            لغو
+                        </button>
+                        <button type="submit" id="saveTransaction" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <span id="saveButtonText">ذخیره تراکنش</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed top-4 left-4 transform -translate-x-full transition-transform duration-300 z-50">
+        <div class="bg-white rounded-lg shadow-lg border-l-4 p-4 max-w-sm">
+            <div class="flex items-center">
+                <div id="toastIcon" class="flex-shrink-0">
+                    <!-- Dynamic icon -->
+                </div>
+                <div class="mr-3">
+                    <p id="toastMessage" class="text-sm font-medium text-gray-900"></p>
+                </div>
+                <button id="closeToast" class="mr-auto text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/transactions.js"></script>
+    <script src="../js/language.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>

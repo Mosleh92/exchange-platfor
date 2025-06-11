@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت نرخ ارز - پلتفرم صرافی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Vazir', sans-serif; }
+        .persian-num { font-family: 'IRANSans', sans-serif; }
+        .rate-card { 
+            transition: all 0.3s ease; 
+            border-left: 4px solid transparent;
+        }
+        .rate-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
+        .rate-up { border-left-color: #059669; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); }
+        .rate-down { border-left-color: #dc2626; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); }
+        .rate-stable { border-left-color: #6b7280; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); }
+        
+        .live-indicator {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .currency-flag { font-size: 1.5rem; margin-left: 8px; }
+        .rate-input { transition: all 0.2s ease; }
+        .rate-input:focus { transform: scale(1.02); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        <i class="fas fa-chart-line text-blue-600 ml-2"></i>
+                        مدیریت نرخ ارز
+                    </h1>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <div class="live-indicator"></div>
+                        <span class="mr-2">به‌روزرسانی زنده</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <button id="refreshRatesBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sync ml-1"></i>
+                        به‌روزرسانی
+                    </button>
+                    <button id="importRatesBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-download ml-1"></i>
+                        وارد کردن
+                    </button>
+                    <button id="exportRatesBtn" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors">
+                        <i class="fas fa-upload ml-1"></i>
+                        خروجی
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Global Market Overview -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-lg p-6 mb-8 text-white">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h2 class="text-xl font-bold">نمای کلی بازار جهانی</h2>
+                    <p class="text-blue-200 text-sm">آخرین به‌روزرسانی: <span id="lastUpdate"></span></p>
+                </div>
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold persian-num" id="totalPairs">12</div>
+                        <div class="text-sm text-blue-200">جفت ارز</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold persian-num text-green-300" id="pairsUp">8</div>
+                        <div class="text-sm text-blue-200">صعودی</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold persian-num text-red-300" id="pairsDown">4</div>
+                        <div class="text-sm text-blue-200">نزولی</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
+                    <div class="text-sm opacity-80">USD/AED</div>
+                    <div class="text-lg font-bold persian-num">3.6725</div>
+                    <div class="text-xs text-green-300">+0.15%</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
+                    <div class="text-sm opacity-80">EUR/AED</div>
+                    <div class="text-lg font-bold persian-num">3.9650</div>
+                    <div class="text-xs text-green-300">+0.23%</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
+                    <div class="text-sm opacity-80">GBP/AED</div>
+                    <div class="text-lg font-bold persian-num">4.6240</div>
+                    <div class="text-xs text-red-300">-0.08%</div>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
+                    <div class="text-sm opacity-80">IRR/AED</div>
+                    <div class="text-lg font-bold persian-num">0.0000873</div>
+                    <div class="text-xs text-green-300">+1.25%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rate Management Controls -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Quick Rate Update -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">
+                    <i class="fas fa-tachometer-alt text-blue-600 ml-2"></i>
+                    به‌روزرسانی سریع
+                </h3>
+                <form id="quickRateForm" class="space-y-4">
+                    <select id="quickCurrency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">انتخاب ارز</option>
+                        <option value="USD">🇺🇸 دلار آمریکا</option>
+                        <option value="EUR">🇪🇺 یورو</option>
+                        <option value="GBP">🇬🇧 پاند انگلیس</option>
+                        <option value="IRR">🇮🇷 تومان ایران</option>
+                        <option value="SAR">🇸🇦 ریال سعودی</option>
+                    </select>
+                    <input type="number" id="quickRate" step="0.0001" placeholder="نرخ جدید" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 rate-input">
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                        به‌روزرسانی
+                    </button>
+                </form>
+            </div>
+
+            <!-- Market Status -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">
+                    <i class="fas fa-globe text-green-600 ml-2"></i>
+                    وضعیت بازار
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">بازار آمریکا:</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">باز</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">بازار اروپا:</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">باز</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">بازار آسیا:</span>
+                        <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">بسته</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">بازار خاورمیانه:</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">باز</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Statistics -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">
+                    <i class="fas fa-chart-bar text-purple-600 ml-2"></i>
+                    آمار امروز
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">تغییرات نرخ:</span>
+                        <span class="font-semibold persian-num" id="rateChanges">47</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">میانگین تغییر:</span>
+                        <span class="font-semibold persian-num text-green-600" id="avgChange">+0.24%</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">بیشترین صعود:</span>
+                        <span class="font-semibold persian-num text-green-600" id="maxGain">IRR +1.25%</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">بیشترین نزول:</span>
+                        <span class="font-semibold persian-num text-red-600" id="maxLoss">GBP -0.08%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Settings -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">
+                    <i class="fas fa-bell text-orange-600 ml-2"></i>
+                    هشدارهای نرخ
+                </h3>
+                <form id="alertForm" class="space-y-3">
+                    <select id="alertCurrency" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="">انتخاب ارز</option>
+                        <option value="USD">دلار آمریکا</option>
+                        <option value="EUR">یورو</option>
+                        <option value="IRR">تومان ایران</option>
+                    </select>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="alertLow" step="0.001" placeholder="حد پایین" 
+                               class="px-2 py-1 border border-gray-300 rounded text-sm">
+                        <input type="number" id="alertHigh" step="0.001" placeholder="حد بالا" 
+                               class="px-2 py-1 border border-gray-300 rounded text-sm">
+                    </div>
+                    <button type="submit" class="w-full bg-orange-600 text-white py-1 rounded text-sm hover:bg-orange-700">
+                        تنظیم هشدار
+                    </button>
+                </form>
+                <div class="mt-3 text-xs text-gray-500">
+                    <span id="activeAlerts">2</span> هشدار فعال
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Rates Grid -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">نرخ‌های ارز</h2>
+                <div class="flex space-x-3 space-x-reverse">
+                    <button id="addCustomRateBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                        <i class="fas fa-plus ml-1"></i>
+                        جفت ارز جدید
+                    </button>
+                    <select id="rateView" class="px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="grid">نمایش شبکه‌ای</option>
+                        <option value="list">نمایش لیستی</option>
+                        <option value="chart">نمایش نمودار</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="ratesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Dynamic rate cards will be inserted here -->
+            </div>
+
+            <div id="ratesList" class="hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">جفت ارز</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">نرخ فروش</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">نرخ خرید</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تغییر 24h</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">حجم</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ratesTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="ratesChart" class="hidden">
+                <div class="h-96">
+                    <canvas id="ratesChartCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rate History & Analysis -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Rate History Chart -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">تاریخچه نرخ ارز</h3>
+                <div class="mb-4">
+                    <select id="historyPair" class="px-3 py-2 border border-gray-300 rounded-lg mr-3">
+                        <option value="USD_AED">USD/AED</option>
+                        <option value="EUR_AED">EUR/AED</option>
+                        <option value="GBP_AED">GBP/AED</option>
+                        <option value="IRR_AED">IRR/AED</option>
+                    </select>
+                    <select id="historyPeriod" class="px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="1D">1 روز</option>
+                        <option value="1W">1 هفته</option>
+                        <option value="1M">1 ماه</option>
+                        <option value="3M">3 ماه</option>
+                        <option value="1Y">1 سال</option>
+                    </select>
+                </div>
+                <div class="h-64">
+                    <canvas id="historyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Volatility Analysis -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">تحلیل نوسان</h3>
+                <div class="space-y-4" id="volatilityAnalysis">
+                    <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                        <div>
+                            <div class="font-semibold">USD/AED</div>
+                            <div class="text-sm text-gray-600">نوسان بالا</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold persian-num text-red-600">2.45%</div>
+                            <div class="text-xs text-gray-500">انحراف معیار</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
+                        <div>
+                            <div class="font-semibold">EUR/AED</div>
+                            <div class="text-sm text-gray-600">نوسان متوسط</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold persian-num text-yellow-600">1.78%</div>
+                            <div class="text-xs text-gray-500">انحراف معیار</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                        <div>
+                            <div class="font-semibold">SAR/AED</div>
+                            <div class="text-sm text-gray-600">نوسان پایین</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold persian-num text-green-600">0.32%</div>
+                            <div class="text-xs text-gray-500">انحراف معیار</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rate Edit Modal -->
+    <div id="rateEditModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-lg w-full">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">ویرایش نرخ</h3>
+                    <button id="closeRateModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="editRateForm" class="p-6">
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">جفت ارز</label>
+                            <input type="text" id="editCurrencyPair" readonly 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">نرخ خرید</label>
+                                <input type="number" id="editBuyRate" step="0.0001" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 rate-input">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">نرخ فروش</label>
+                                <input type="number" id="editSellRate" step="0.0001" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 rate-input">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">منبع نرخ</label>
+                            <select id="editRateSource" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="manual">دستی</option>
+                                <option value="api">API خارجی</option>
+                                <option value="bank">بانک مرکزی</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">توضیحات</label>
+                            <textarea id="editRateNotes" rows="3" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                      placeholder="توضیحات اضافی..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end space-x-3 space-x-reverse">
+                        <button type="button" id="cancelRateEdit" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            لغو
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            ذخیره تغییرات
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/rates.js"></script>
+    <script src="../js/language.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>

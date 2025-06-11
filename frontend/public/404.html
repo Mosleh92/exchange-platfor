@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحه یافت نشد - پلتفرم صرافی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Tahoma', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .error-animation {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="text-center">
+        <!-- آیکون خطا -->
+        <div class="error-animation mb-8">
+            <i class="fas fa-exclamation-triangle text-8xl text-yellow-400"></i>
+        </div>
+
+        <!-- متن خطا -->
+        <div class="bg-white bg-opacity-90 rounded-xl p-8 shadow-2xl max-w-md mx-auto">
+            <h1 class="text-6xl font-bold text-red-600 mb-4">404</h1>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">صفحه یافت نشد</h2>
+            <p class="text-gray-600 mb-6">
+                متأسفانه صفحه‌ای که دنبال آن می‌گردید وجود ندارد یا منتقل شده است.
+            </p>
+
+            <!-- دکمه‌های عمل -->
+            <div class="space-y-3">
+                <button onclick="history.back()" 
+                        class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-all">
+                    <i class="fas fa-arrow-right ml-2"></i>
+                    بازگشت به صفحه قبل
+                </button>
+                
+                <a href="/index.html" 
+                   class="block w-full bg-gray-600 text-white py-3 px-6 rounded-lg hover:bg-gray-700 transition-all text-center">
+                    <i class="fas fa-home ml-2"></i>
+                    بازگشت به صفحه اصلی
+                </a>
+            </div>
+
+            <!-- لینک‌های مفید -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <p class="text-sm text-gray-600 mb-3">صفحات مفید:</p>
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <a href="/pages/dashboard.html" class="text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="fas fa-tachometer-alt ml-1"></i>داشبورد
+                    </a>
+                    <a href="/pages/partners-management.html" class="text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="fas fa-users ml-1"></i>همکاران
+                    </a>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="fas fa-life-ring ml-1"></i>پشتیبانی
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- اطلاعات تماس -->
+        <div class="mt-8 text-white text-center">
+            <p class="text-sm opacity-75">
+                در صورت تداوم مشکل با پشتیبانی تماس بگیرید
+            </p>
+            <div class="mt-2">
+                <a href="mailto:support@exchangeplatform.com" class="text-blue-200 hover:text-white">
+                    <i class="fas fa-envelope ml-1"></i>
+                    support@exchangeplatform.com
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Log 404 error for analytics
+        console.error('404 Error:', {
+            url: window.location.href,
+            referrer: document.referrer,
+            timestamp: new Date().toISOString()
+        });
+
+        // Optional: Send 404 report to analytics
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'page_not_found', {
+                'page_location': window.location.href,
+                'page_referrer': document.referrer
+            });
+        }
+    </script>
+</body>
+</html>
